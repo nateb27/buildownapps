@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Padel Court Booking</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #1a5f2a 0%, #2d8a3e 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px 0 30px;
+      color: white;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+
+    header p {
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .week-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .week-nav button {
+      background: #2d8a3e;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .week-nav button:hover {
+      background: #1a5f2a;
+    }
+
+    .week-nav .current-week {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: #e9ecef;
+    }
+
+    .day-column {
+      background: white;
+      min-height: 300px;
+    }
+
+    .day-header {
+      padding: 12px 8px;
+      text-align: center;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      position: sticky;
+      top: 0;
+    }
+
+    .day-header .day-name {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .day-header .day-number {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .day-header.today {
+      background: #2d8a3e;
+    }
+
+    .day-header.today .day-name,
+    .day-header.today .day-number {
+      color: white;
+    }
+
+    .day-bookings {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .booking {
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      border-left: 3px solid #2d8a3e;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .booking:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .booking .time {
+      font-weight: 600;
+      color: #1a5f2a;
+      font-size: 12px;
+    }
+
+    .booking .name {
+      color: #333;
+      margin-top: 2px;
+    }
+
+    .add-booking-btn {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      background: transparent;
+      border: 2px dashed #ccc;
+      border-radius: 6px;
+      color: #999;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .add-booking-btn:hover {
+      border-color: #2d8a3e;
+      color: #2d8a3e;
+      background: #f0fff4;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      overflow: hidden;
+      animation: modalIn 0.2s ease-out;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .modal-header {
+      padding: 20px;
+      background: #2d8a3e;
+      color: white;
+    }
+
+    .modal-header h2 {
+      font-size: 1.25rem;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #2d8a3e;
+    }
+
+    .time-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-footer {
+      padding: 15px 20px;
+      background: #f8f9fa;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: #2d8a3e;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1a5f2a;
+    }
+
+    .btn-secondary {
+      background: #e9ecef;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #dee2e6;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #333;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 2000;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      background: #dc3545;
+    }
+
+    .toast.success {
+      background: #28a745;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      .calendar {
+        display: block;
+      }
+
+      .day-column {
+        min-height: auto;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .day-column:last-child {
+        border-bottom: none;
+      }
+
+      .day-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 15px;
+      }
+
+      .day-header .day-name {
+        font-size: 14px;
+      }
+
+      .day-header .day-number {
+        font-size: 1.25rem;
+      }
+
+      .day-bookings {
+        padding: 10px 15px;
+      }
+
+      .day-bookings:empty::before {
+        content: 'No bookings';
+        color: #999;
+        font-size: 13px;
+      }
+    }
+
+    /* Empty state */
+    .empty-day {
+      color: #ccc;
+      font-size: 12px;
+      text-align: center;
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Padel Court Booking</h1>
+      <p>Book your court time with friends & family</p>
+    </header>
+
+    <div class="card">
+      <div class="week-nav">
+        <button onclick="previousWeek()">&larr; Previous</button>
+        <span class="current-week" id="currentWeek"></span>
+        <button onclick="nextWeek()">Next &rarr;</button>
+      </div>
+      <div class="calendar" id="calendar"></div>
+    </div>
+  </div>
+
+  <!-- Booking Modal -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">New Booking</h2>
+      </div>
+      <div class="modal-body">
+        <form id="bookingForm">
+          <input type="hidden" id="bookingId">
+          <input type="hidden" id="bookingDate">
+
+          <div class="form-group">
+            <label for="bookedBy">Your Name</label>
+            <input type="text" id="bookedBy" required placeholder="Who's booking?">
+          </div>
+
+          <div class="time-row">
+            <div class="form-group">
+              <label for="startTime">Start Time</label>
+              <select id="startTime" required></select>
+            </div>
+            <div class="form-group">
+              <label for="endTime">End Time</label>
+              <select id="endTime" required></select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" rows="2" placeholder="Any details..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteBooking()" style="display: none; margin-right: auto;">Delete</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="saveBooking()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_URL = '/api/bookings';
+    let currentWeekStart = getMonday(new Date());
+    let bookings = [];
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      populateTimeSelects();
+      loadWeek();
+
+      // Load saved name
+      const savedName = localStorage.getItem('padel_user_name');
+      if (savedName) {
+        document.getElementById('bookedBy').value = savedName;
+      }
+    });
+
+    function getMonday(date) {
+      const d = new Date(date);
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(d.setDate(diff));
+    }
+
+    function formatDate(date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    function populateTimeSelects() {
+      const startSelect = document.getElementById('startTime');
+      const endSelect = document.getElementById('endTime');
+
+      for (let h = 7; h <= 22; h++) {
+        for (let m = 0; m < 60; m += 30) {
+          const time = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+          const label = formatTimeLabel(time);
+
+          startSelect.innerHTML += `<option value="${time}">${label}</option>`;
+          endSelect.innerHTML += `<option value="${time}">${label}</option>`;
+        }
+      }
+      // Add end time for 23:00
+      endSelect.innerHTML += `<option value="23:00">11:00 PM</option>`;
+
+      // Set defaults
+      startSelect.value = '09:00';
+      endSelect.value = '10:30';
+    }
+
+    function formatTimeLabel(time) {
+      const [h, m] = time.split(':');
+      const hour = parseInt(h);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${m} ${ampm}`;
+    }
+
+    async function loadWeek() {
+      const weekEnd = new Date(currentWeekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+
+      // Update header
+      const options = { month: 'short', day: 'numeric' };
+      document.getElementById('currentWeek').textContent =
+        `${currentWeekStart.toLocaleDateString('en-US', options)} - ${weekEnd.toLocaleDateString('en-US', options)}`;
+
+      try {
+        const response = await fetch(
+          `${API_URL}/range?start=${formatDate(currentWeekStart)}&end=${formatDate(weekEnd)}`
+        );
+        bookings = await response.json();
+        renderCalendar();
+      } catch (error) {
+        showToast('Failed to load bookings', 'error');
+      }
+    }
+
+    function renderCalendar() {
+      const calendar = document.getElementById('calendar');
+      calendar.innerHTML = '';
+
+      const today = formatDate(new Date());
+      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(currentWeekStart);
+        date.setDate(date.getDate() + i);
+        const dateStr = formatDate(date);
+        const isToday = dateStr === today;
+
+        const dayBookings = bookings
+          .filter(b => b.date === dateStr)
+          .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+        const column = document.createElement('div');
+        column.className = 'day-column';
+        column.innerHTML = `
+          <div class="day-header ${isToday ? 'today' : ''}">
+            <div class="day-name">${dayNames[i]}</div>
+            <div class="day-number">${date.getDate()}</div>
+          </div>
+          <div class="day-bookings">
+            ${dayBookings.map(b => `
+              <div class="booking" onclick="editBooking('${b.id}')">
+                <div class="time">${formatTimeLabel(b.startTime)} - ${formatTimeLabel(b.endTime)}</div>
+                <div class="name">${escapeHtml(b.bookedBy)}</div>
+                ${b.notes ? `<div class="notes" style="font-size:11px;color:#666;margin-top:2px;">${escapeHtml(b.notes)}</div>` : ''}
+              </div>
+            `).join('')}
+            <button class="add-booking-btn" onclick="openModal('${dateStr}')">+ Add Booking</button>
+          </div>
+        `;
+        calendar.appendChild(column);
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function previousWeek() {
+      currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+      loadWeek();
+    }
+
+    function nextWeek() {
+      currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+      loadWeek();
+    }
+
+    function openModal(date) {
+      document.getElementById('modalTitle').textContent = 'New Booking';
+      document.getElementById('bookingId').value = '';
+      document.getElementById('bookingDate').value = date;
+      document.getElementById('notes').value = '';
+      document.getElementById('deleteBtn').style.display = 'none';
+
+      // Reset times
+      document.getElementById('startTime').value = '09:00';
+      document.getElementById('endTime').value = '10:30';
+
+      document.getElementById('bookingModal').classList.add('active');
+    }
+
+    function editBooking(id) {
+      const booking = bookings.find(b => b.id === id);
+      if (!booking) return;
+
+      document.getElementById('modalTitle').textContent = 'Edit Booking';
+      document.getElementById('bookingId').value = booking.id;
+      document.getElementById('bookingDate').value = booking.date;
+      document.getElementById('bookedBy').value = booking.bookedBy;
+      document.getElementById('startTime').value = booking.startTime;
+      document.getElementById('endTime').value = booking.endTime;
+      document.getElementById('notes').value = booking.notes || '';
+      document.getElementById('deleteBtn').style.display = 'block';
+
+      document.getElementById('bookingModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('bookingModal').classList.remove('active');
+    }
+
+    async function saveBooking() {
+      const id = document.getElementById('bookingId').value;
+      const date = document.getElementById('bookingDate').value;
+      const bookedBy = document.getElementById('bookedBy').value.trim();
+      const startTime = document.getElementById('startTime').value;
+      const endTime = document.getElementById('endTime').value;
+      const notes = document.getElementById('notes').value.trim();
+
+      if (!bookedBy) {
+        showToast('Please enter your name', 'error');
+        return;
+      }
+
+      if (startTime >= endTime) {
+        showToast('End time must be after start time', 'error');
+        return;
+      }
+
+      // Save name for next time
+      localStorage.setItem('padel_user_name', bookedBy);
+
+      try {
+        // If editing, delete old booking first
+        if (id) {
+          await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        }
+
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date, startTime, endTime, bookedBy, notes })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to save');
+        }
+
+        closeModal();
+        loadWeek();
+        showToast('Booking saved!', 'success');
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+
+    async function deleteBooking() {
+      const id = document.getElementById('bookingId').value;
+      if (!id) return;
+
+      if (!confirm('Delete this booking?')) return;
+
+      try {
+        await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        closeModal();
+        loadWeek();
+        showToast('Booking deleted', 'success');
+      } catch (error) {
+        showToast('Failed to delete booking', 'error');
+      }
+    }
+
+    function showToast(message, type = '') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type} show`;
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Close modal on overlay click
+    document.getElementById('bookingModal').addEventListener('click', (e) => {
+      if (e.target.id === 'bookingModal') {
+        closeModal();
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
