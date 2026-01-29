@@ -61,18 +61,19 @@ app.get('/api/bookings/range', (req, res) => {
 // Create a new booking
 app.post('/api/bookings', (req, res) => {
   try {
-    const { date, startTime, endTime, bookedBy, notes } = req.body;
+    const { date, startTime, endTime, bookedBy, notes, court } = req.body;
 
     // Validation
-    if (!date || !startTime || !endTime || !bookedBy) {
+    if (!date || !startTime || !endTime || !bookedBy || !court) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const data = readBookings();
 
-    // Check for conflicts
+    // Check for conflicts (only within the same court)
     const hasConflict = data.bookings.some(booking => {
       if (booking.date !== date) return false;
+      if (booking.court !== court) return false;
       // Check time overlap
       return (startTime < booking.endTime && endTime > booking.startTime);
     });
@@ -88,6 +89,7 @@ app.post('/api/bookings', (req, res) => {
       endTime,
       bookedBy: bookedBy.trim(),
       notes: notes?.trim() || '',
+      court,
       createdAt: new Date().toISOString()
     };
 

@@ -101,6 +101,46 @@
       background: rgba(255,255,255,0.5);
     }
 
+    .court-tabs {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .court-tab {
+      flex: 1;
+      padding: 14px 20px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: #666;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
+    }
+
+    .court-tab:hover {
+      background: #f0f0f0;
+    }
+
+    .court-tab.active {
+      color: #2d8a3e;
+      border-bottom-color: #2d8a3e;
+      background: white;
+    }
+
+    .court-tab.padel.active {
+      color: #2d8a3e;
+      border-bottom-color: #2d8a3e;
+    }
+
+    .court-tab.tennis.active {
+      color: #1976d2;
+      border-bottom-color: #1976d2;
+    }
+
     .calendar {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -556,6 +596,10 @@
     </header>
 
     <div class="card">
+      <div class="court-tabs">
+        <button class="court-tab padel active" id="padelTab" onclick="setCourt('padel')">Padel Court</button>
+        <button class="court-tab tennis" id="tennisTab" onclick="setCourt('tennis')">Tennis Court</button>
+      </div>
       <div class="week-nav">
         <button onclick="previousPeriod()">&larr; Previous</button>
         <span class="current-week" id="currentWeek"></span>
@@ -579,6 +623,14 @@
         <form id="bookingForm">
           <input type="hidden" id="bookingId">
           <input type="hidden" id="bookingDate">
+
+          <div class="form-group">
+            <label for="courtSelect">Court</label>
+            <select id="courtSelect" required>
+              <option value="padel">Padel Court</option>
+              <option value="tennis">Tennis Court</option>
+            </select>
+          </div>
 
           <div class="form-group">
             <label for="bookedBy">Your Name</label>
@@ -618,6 +670,7 @@
     let currentWeekStart = getMonday(new Date());
     let currentMonth = new Date();
     let currentView = 'week'; // 'week' or 'month'
+    let currentCourt = 'padel'; // 'padel' or 'tennis'
     let bookings = [];
 
     // Initialize
@@ -636,7 +689,23 @@
       if (savedView) {
         setView(savedView);
       }
+
+      // Load saved court preference
+      const savedCourt = localStorage.getItem('bunny_court');
+      if (savedCourt) {
+        setCourt(savedCourt);
+      }
     });
+
+    function setCourt(court) {
+      currentCourt = court;
+      localStorage.setItem('bunny_court', court);
+
+      document.getElementById('padelTab').classList.toggle('active', court === 'padel');
+      document.getElementById('tennisTab').classList.toggle('active', court === 'tennis');
+
+      loadData();
+    }
 
     function getMonday(date) {
       const d = new Date(date);
@@ -749,7 +818,7 @@
         const isToday = dateStr === today;
 
         const dayBookings = bookings
-          .filter(b => b.date === dateStr)
+          .filter(b => b.date === dateStr && b.court === currentCourt)
           .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
         const column = document.createElement('div');
@@ -837,7 +906,7 @@
         const isOtherMonth = date.getMonth() !== currentMonthIndex;
 
         const dayBookings = bookings
-          .filter(b => b.date === dateStr)
+          .filter(b => b.date === dateStr && b.court === currentCourt)
           .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
         const dayEl = document.createElement('div');
@@ -878,6 +947,7 @@
       document.getElementById('bookingDate').value = date;
       document.getElementById('notes').value = '';
       document.getElementById('deleteBtn').style.display = 'none';
+      document.getElementById('courtSelect').value = currentCourt;
 
       // Reset times
       document.getElementById('startTime').value = '09:00';
@@ -897,6 +967,7 @@
       document.getElementById('startTime').value = booking.startTime;
       document.getElementById('endTime').value = booking.endTime;
       document.getElementById('notes').value = booking.notes || '';
+      document.getElementById('courtSelect').value = booking.court || 'padel';
       document.getElementById('deleteBtn').style.display = 'block';
 
       document.getElementById('bookingModal').classList.add('active');
@@ -913,6 +984,7 @@
       const startTime = document.getElementById('startTime').value;
       const endTime = document.getElementById('endTime').value;
       const notes = document.getElementById('notes').value.trim();
+      const court = document.getElementById('courtSelect').value;
 
       if (!bookedBy) {
         showToast('Please enter your name', 'error');
@@ -936,7 +1008,7 @@
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date, startTime, endTime, bookedBy, notes })
+          body: JSON.stringify({ date, startTime, endTime, bookedBy, notes, court })
         });
 
         if (!response.ok) {
@@ -945,7 +1017,7 @@
         }
 
         closeModal();
-        loadWeek();
+        loadData();
         showToast('Booking saved!', 'success');
       } catch (error) {
         showToast(error.message, 'error');
@@ -961,7 +1033,7 @@
       try {
         await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
         closeModal();
-        loadWeek();
+        loadData();
         showToast('Booking deleted', 'success');
       } catch (error) {
         showToast('Failed to delete booking', 'error');
