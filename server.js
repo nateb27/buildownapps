@@ -34,6 +34,18 @@ function writeBookings(data) {
 
 // API Routes
 
+// Password verification
+const SITE_PASSWORD = process.env.SITE_PASSWORD || 'trogolo';
+
+app.post('/api/verify', (req, res) => {
+  const { password } = req.body;
+  if (password === SITE_PASSWORD) {
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ error: 'Invalid password' });
+  }
+});
+
 // Get all bookings
 app.get('/api/bookings', (req, res) => {
   try {

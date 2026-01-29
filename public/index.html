@@ -39,6 +39,80 @@
       padding: 20px;
     }
 
+    /* Login screen */
+    .login-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      padding: 40px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .login-card h1 {
+      color: var(--primary);
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .login-card p {
+      color: #666;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .login-card input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .login-card button {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .login-card button:hover {
+      background: var(--primary-dark);
+    }
+
+    .login-error {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
     header {
       text-align: center;
       padding: 20px 0 30px;
@@ -607,7 +681,19 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <h1>Bunny Run Racket Club</h1>
+      <p>Enter the password to access bookings</p>
+      <input type="password" id="passwordInput" placeholder="Password" onkeypress="if(event.key==='Enter')checkPassword()">
+      <button onclick="checkPassword()">Enter</button>
+      <div class="login-error" id="loginError">Incorrect password</div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div class="container hidden" id="mainApp">
     <header>
       <h1>Bunny Run Racket Club</h1>
       <p>Book your court time</p>
@@ -691,8 +777,53 @@
     let currentCourt = 'padel'; // 'padel' or 'tennis'
     let bookings = [];
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
+    // Password functions
+    async function checkPassword() {
+      const password = document.getElementById('passwordInput').value;
+      const errorEl = document.getElementById('loginError');
+
+      try {
+        const response = await fetch('/api/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+
+        if (response.ok) {
+          localStorage.setItem('bunny_auth', password);
+          showMainApp();
+          errorEl.style.display = 'none';
+        } else {
+          errorEl.style.display = 'block';
+        }
+      } catch (error) {
+        errorEl.style.display = 'block';
+      }
+    }
+
+    async function verifyStoredPassword() {
+      const stored = localStorage.getItem('bunny_auth');
+      if (!stored) return false;
+
+      try {
+        const response = await fetch('/api/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: stored })
+        });
+        return response.ok;
+      } catch {
+        return false;
+      }
+    }
+
+    function showMainApp() {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      initializeApp();
+    }
+
+    function initializeApp() {
       populateTimeSelects();
       loadData();
 
@@ -712,6 +843,14 @@
       const savedCourt = localStorage.getItem('bunny_court');
       if (savedCourt) {
         setCourt(savedCourt);
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      const isValid = await verifyStoredPassword();
+      if (isValid) {
+        showMainApp();
       }
     });
 
