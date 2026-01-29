@@ -76,6 +76,31 @@
       color: #333;
     }
 
+    .view-toggle {
+      display: flex;
+      gap: 4px;
+      background: #e9ecef;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .view-toggle button {
+      background: transparent;
+      color: #666;
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .view-toggle button.active {
+      background: white;
+      color: #2d8a3e;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .view-toggle button:hover:not(.active) {
+      background: rgba(255,255,255,0.5);
+    }
+
     .calendar {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -390,6 +415,137 @@
       text-align: center;
       padding: 20px 0;
     }
+
+    /* Monthly view */
+    .calendar.month-view {
+      grid-template-columns: repeat(7, 1fr);
+      grid-template-rows: auto;
+    }
+
+    .month-day-header {
+      background: #f8f9fa;
+      padding: 8px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .month-day {
+      background: white;
+      min-height: 100px;
+      padding: 4px;
+      border-bottom: 1px solid #e9ecef;
+      border-right: 1px solid #e9ecef;
+    }
+
+    .month-day:nth-child(7n) {
+      border-right: none;
+    }
+
+    .month-day.other-month {
+      background: #fafafa;
+    }
+
+    .month-day.other-month .month-day-number {
+      color: #ccc;
+    }
+
+    .month-day-number {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      padding: 4px 6px;
+      display: inline-block;
+    }
+
+    .month-day.today .month-day-number {
+      background: #2d8a3e;
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .month-day .booking {
+      padding: 3px 6px;
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    .month-day .booking .time {
+      font-size: 10px;
+    }
+
+    .month-day .booking .name {
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .month-day .more-bookings {
+      font-size: 11px;
+      color: #2d8a3e;
+      padding: 2px 6px;
+      cursor: pointer;
+    }
+
+    .month-day .add-booking-btn {
+      padding: 4px;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .calendar.month-view {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+      }
+
+      .month-day {
+        min-height: 60px;
+        padding: 2px;
+      }
+
+      .month-day-number {
+        font-size: 12px;
+        padding: 2px 4px;
+      }
+
+      .month-day .booking {
+        display: none;
+      }
+
+      .month-day .booking-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: #2d8a3e;
+        border-radius: 50%;
+        margin: 1px;
+      }
+
+      .month-day .add-booking-btn {
+        display: none;
+      }
+
+      .view-toggle {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+      }
+
+      .week-nav {
+        flex-wrap: wrap;
+      }
+    }
   </style>
 </head>
 <body>
@@ -401,9 +557,13 @@
 
     <div class="card">
       <div class="week-nav">
-        <button onclick="previousWeek()">&larr; Previous</button>
+        <button onclick="previousPeriod()">&larr; Previous</button>
         <span class="current-week" id="currentWeek"></span>
-        <button onclick="nextWeek()">Next &rarr;</button>
+        <button onclick="nextPeriod()">Next &rarr;</button>
+        <div class="view-toggle">
+          <button id="weekViewBtn" class="active" onclick="setView('week')">Week</button>
+          <button id="monthViewBtn" onclick="setView('month')">Month</button>
+        </div>
       </div>
       <div class="calendar" id="calendar"></div>
     </div>
@@ -456,17 +616,25 @@
   <script>
     const API_URL = '/api/bookings';
     let currentWeekStart = getMonday(new Date());
+    let currentMonth = new Date();
+    let currentView = 'week'; // 'week' or 'month'
     let bookings = [];
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       populateTimeSelects();
-      loadWeek();
+      loadData();
 
       // Load saved name
       const savedName = localStorage.getItem('padel_user_name');
       if (savedName) {
         document.getElementById('bookedBy').value = savedName;
+      }
+
+      // Load saved view preference
+      const savedView = localStorage.getItem('padel_view');
+      if (savedView) {
+        setView(savedView);
       }
     });
 
@@ -479,6 +647,42 @@
 
     function formatDate(date) {
       return date.toISOString().split('T')[0];
+    }
+
+    function setView(view) {
+      currentView = view;
+      localStorage.setItem('padel_view', view);
+
+      document.getElementById('weekViewBtn').classList.toggle('active', view === 'week');
+      document.getElementById('monthViewBtn').classList.toggle('active', view === 'month');
+
+      loadData();
+    }
+
+    function previousPeriod() {
+      if (currentView === 'week') {
+        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+      } else {
+        currentMonth.setMonth(currentMonth.getMonth() - 1);
+      }
+      loadData();
+    }
+
+    function nextPeriod() {
+      if (currentView === 'week') {
+        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+      } else {
+        currentMonth.setMonth(currentMonth.getMonth() + 1);
+      }
+      loadData();
+    }
+
+    async function loadData() {
+      if (currentView === 'week') {
+        await loadWeek();
+      } else {
+        await loadMonth();
+      }
     }
 
     function populateTimeSelects() {
@@ -533,6 +737,7 @@
     function renderCalendar() {
       const calendar = document.getElementById('calendar');
       calendar.innerHTML = '';
+      calendar.className = 'calendar';
 
       const today = formatDate(new Date());
       const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -575,14 +780,96 @@
       return div.innerHTML;
     }
 
-    function previousWeek() {
-      currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-      loadWeek();
+    async function loadMonth() {
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+
+      // Get first and last day to display (including padding days)
+      const firstOfMonth = new Date(year, month, 1);
+      const lastOfMonth = new Date(year, month + 1, 0);
+
+      // Start from Monday of the week containing the 1st
+      const startDate = getMonday(firstOfMonth);
+      // End on Sunday of the week containing the last day
+      const endDate = new Date(lastOfMonth);
+      const endDay = endDate.getDay();
+      if (endDay !== 0) {
+        endDate.setDate(endDate.getDate() + (7 - endDay));
+      }
+
+      // Update header
+      const options = { month: 'long', year: 'numeric' };
+      document.getElementById('currentWeek').textContent =
+        currentMonth.toLocaleDateString('en-US', options);
+
+      try {
+        const response = await fetch(
+          `${API_URL}/range?start=${formatDate(startDate)}&end=${formatDate(endDate)}`
+        );
+        bookings = await response.json();
+        renderMonthCalendar(startDate, endDate, month);
+      } catch (error) {
+        showToast('Failed to load bookings', 'error');
+      }
     }
 
-    function nextWeek() {
-      currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-      loadWeek();
+    function renderMonthCalendar(startDate, endDate, currentMonthIndex) {
+      const calendar = document.getElementById('calendar');
+      calendar.innerHTML = '';
+      calendar.className = 'calendar month-view';
+
+      const today = formatDate(new Date());
+      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+      // Add day headers
+      dayNames.forEach(name => {
+        const header = document.createElement('div');
+        header.className = 'month-day-header';
+        header.textContent = name;
+        calendar.appendChild(header);
+      });
+
+      // Add days
+      const date = new Date(startDate);
+      while (date <= endDate) {
+        const dateStr = formatDate(date);
+        const isToday = dateStr === today;
+        const isOtherMonth = date.getMonth() !== currentMonthIndex;
+
+        const dayBookings = bookings
+          .filter(b => b.date === dateStr)
+          .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+        const dayEl = document.createElement('div');
+        dayEl.className = `month-day ${isToday ? 'today' : ''} ${isOtherMonth ? 'other-month' : ''}`;
+
+        const maxVisible = 2;
+        const visibleBookings = dayBookings.slice(0, maxVisible);
+        const hiddenCount = dayBookings.length - maxVisible;
+
+        dayEl.innerHTML = `
+          <div class="month-day-number">${date.getDate()}</div>
+          ${visibleBookings.map(b => `
+            <div class="booking" onclick="editBooking('${b.id}')">
+              <div class="time">${formatTimeLabel(b.startTime)}</div>
+              <div class="name">${escapeHtml(b.bookedBy)}</div>
+            </div>
+          `).join('')}
+          ${hiddenCount > 0 ? `<div class="more-bookings" onclick="openDayDetail('${dateStr}')">+${hiddenCount} more</div>` : ''}
+          ${dayBookings.map(() => '<span class="booking-dot"></span>').join('')}
+          <button class="add-booking-btn" onclick="openModal('${dateStr}')">+</button>
+        `;
+
+        calendar.appendChild(dayEl);
+        date.setDate(date.getDate() + 1);
+      }
+    }
+
+    function openDayDetail(dateStr) {
+      // Switch to week view showing this date
+      const date = new Date(dateStr);
+      currentWeekStart = getMonday(date);
+      setView('week');
     }
 
     function openModal(date) {
