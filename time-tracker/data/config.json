@@ -1,0 +1,10 @@
+{
+  "Role 1": {
+    "Task 1": ["Subtask A", "Subtask B", "Subtask C"],
+    "Task 2": ["Subtask A", "Subtask B"]
+  },
+  "Role 2": {
+    "Task 1": ["Subtask A", "Subtask B"],
+    "Task 2": ["Subtask A", "Subtask B", "Subtask C"]
+  }
+}

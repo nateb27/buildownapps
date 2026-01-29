@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Capture Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --primary-light: #e0e7ff;
+      --success: #10b981;
+      --success-dark: #059669;
+      --danger: #ef4444;
+      --danger-dark: #dc2626;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--gray-100);
+      min-height: 100vh;
+      color: var(--gray-900);
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px 0;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      color: var(--gray-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-700);
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    select {
+      cursor: pointer;
+      background: white;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      gap: 8px;
+    }
+
+    .btn-go {
+      width: 100%;
+      padding: 20px;
+      font-size: 1.5rem;
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-go:hover:not(:disabled) {
+      background: var(--success-dark);
+      transform: scale(1.02);
+    }
+
+    .btn-go:disabled {
+      background: var(--gray-300);
+      cursor: not-allowed;
+    }
+
+    .btn-stop {
+      width: 100%;
+      padding: 20px;
+      font-size: 1.5rem;
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-stop:hover {
+      background: var(--danger-dark);
+    }
+
+    .btn-secondary {
+      background: var(--gray-200);
+      color: var(--gray-700);
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-300);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 0.875rem;
+    }
+
+    /* Timer Screen */
+    #timer-screen {
+      display: none;
+    }
+
+    #timer-screen.active {
+      display: block;
+    }
+
+    #main-screen.hidden {
+      display: none;
+    }
+
+    .timer-display {
+      text-align: center;
+      padding: 30px 0;
+    }
+
+    .timer-task {
+      font-size: 1rem;
+      color: var(--gray-500);
+      margin-bottom: 10px;
+    }
+
+    .timer-clock {
+      font-size: 4rem;
+      font-weight: 700;
+      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+      color: var(--gray-900);
+      letter-spacing: 2px;
+    }
+
+    .timer-note {
+      margin-top: 20px;
+    }
+
+    /* Entries List */
+    .entries-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .entries-header h2 {
+      font-size: 1rem;
+      color: var(--gray-700);
+    }
+
+    .entry-list {
+      list-style: none;
+    }
+
+    .entry-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .entry-item:last-child {
+      border-bottom: none;
+    }
+
+    .entry-info {
+      flex: 1;
+    }
+
+    .entry-task {
+      font-weight: 500;
+      color: var(--gray-900);
+    }
+
+    .entry-meta {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin-top: 2px;
+    }
+
+    .entry-duration {
+      font-weight: 600;
+      color: var(--primary);
+      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    }
+
+    .entry-delete {
+      background: none;
+      border: none;
+      color: var(--gray-300);
+      cursor: pointer;
+      padding: 4px 8px;
+      margin-left: 8px;
+    }
+
+    .entry-delete:hover {
+      color: var(--danger);
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--gray-500);
+      padding: 20px;
+    }
+
+    /* Footer Links */
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .footer-links a {
+      color: var(--gray-500);
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .modal-header h2 {
+      font-size: 1.25rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--gray-500);
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* Config Editor */
+    .config-section {
+      margin-bottom: 24px;
+    }
+
+    .config-section h3 {
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .config-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .config-item input {
+      flex: 1;
+    }
+
+    .config-item button {
+      padding: 8px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray-400);
+    }
+
+    .config-item button:hover {
+      color: var(--danger);
+    }
+
+    .add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+      padding: 8px 0;
+    }
+
+    .add-btn:hover {
+      text-decoration: underline;
+    }
+
+    .nested {
+      margin-left: 24px;
+      padding-left: 16px;
+      border-left: 2px solid var(--gray-200);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--gray-900);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 200;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Time Capture Tool</h1>
+    </header>
+
+    <!-- Main Screen -->
+    <div id="main-screen">
+      <div class="card">
+        <div class="form-group">
+          <label for="name">Your Name</label>
+          <input type="text" id="name" placeholder="Enter your name">
+        </div>
+
+        <div class="form-group">
+          <label for="role">Role</label>
+          <select id="role">
+            <option value="">Select a role...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="task">Task</label>
+          <select id="task" disabled>
+            <option value="">Select a task...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="subtask">Subtask</label>
+          <select id="subtask" disabled>
+            <option value="">Select a subtask...</option>
+          </select>
+        </div>
+
+        <button class="btn btn-go" id="go-btn" disabled>GO</button>
+      </div>
+
+      <!-- Today's Entries -->
+      <div class="card">
+        <div class="entries-header">
+          <h2>Today's Entries</h2>
+          <span id="total-time"></span>
+        </div>
+        <ul class="entry-list" id="entry-list">
+          <li class="empty-state">No entries yet today</li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <a href="#" id="config-link">Edit Configuration</a>
+        <a href="#" id="export-link">Export CSV</a>
+      </div>
+    </div>
+
+    <!-- Timer Screen -->
+    <div id="timer-screen">
+      <div class="card">
+        <div class="timer-display">
+          <div class="timer-task" id="timer-task">Task Name</div>
+          <div class="timer-clock" id="timer-clock">00:00</div>
+        </div>
+
+        <div class="form-group timer-note">
+          <label for="note">Note (optional)</label>
+          <input type="text" id="note" placeholder="Add a note about this task...">
+        </div>
+
+        <button class="btn btn-stop" id="stop-btn">STOP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Config Modal -->
+  <div class="modal-overlay" id="config-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Edit Configuration</h2>
+        <button class="modal-close" id="config-close">&times;</button>
+      </div>
+      <div class="modal-body" id="config-body">
+        <!-- Config editor rendered here -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="config-cancel">Cancel</button>
+        <button class="btn btn-primary" id="config-save">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // State
+    let config = {};
+    let entries = [];
+    let timerInterval = null;
+    let timerStart = null;
+    let currentSelection = { role: '', task: '', subtask: '' };
+
+    // DOM Elements
+    const nameInput = document.getElementById('name');
+    const roleSelect = document.getElementById('role');
+    const taskSelect = document.getElementById('task');
+    const subtaskSelect = document.getElementById('subtask');
+    const goBtn = document.getElementById('go-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const mainScreen = document.getElementById('main-screen');
+    const timerScreen = document.getElementById('timer-screen');
+    const timerTask = document.getElementById('timer-task');
+    const timerClock = document.getElementById('timer-clock');
+    const noteInput = document.getElementById('note');
+    const entryList = document.getElementById('entry-list');
+    const totalTime = document.getElementById('total-time');
+    const configLink = document.getElementById('config-link');
+    const exportLink = document.getElementById('export-link');
+    const configModal = document.getElementById('config-modal');
+    const configClose = document.getElementById('config-close');
+    const configCancel = document.getElementById('config-cancel');
+    const configSave = document.getElementById('config-save');
+    const configBody = document.getElementById('config-body');
+    const toast = document.getElementById('toast');
+
+    // Initialize
+    async function init() {
+      // Load saved name
+      const savedName = localStorage.getItem('timetracker_name');
+      if (savedName) nameInput.value = savedName;
+
+      // Load saved role
+      const savedRole = localStorage.getItem('timetracker_role');
+
+      // Load config and entries
+      await Promise.all([loadConfig(), loadTodayEntries()]);
+
+      // Restore saved role if it exists
+      if (savedRole && config[savedRole]) {
+        roleSelect.value = savedRole;
+        onRoleChange();
+      }
+
+      // Set up event listeners
+      nameInput.addEventListener('change', () => {
+        localStorage.setItem('timetracker_name', nameInput.value);
+      });
+
+      roleSelect.addEventListener('change', onRoleChange);
+      taskSelect.addEventListener('change', onTaskChange);
+      subtaskSelect.addEventListener('change', onSubtaskChange);
+      goBtn.addEventListener('click', startTimer);
+      stopBtn.addEventListener('click', stopTimer);
+      configLink.addEventListener('click', openConfigModal);
+      exportLink.addEventListener('click', exportCSV);
+      configClose.addEventListener('click', closeConfigModal);
+      configCancel.addEventListener('click', closeConfigModal);
+      configSave.addEventListener('click', saveConfig);
+    }
+
+    // Load configuration
+    async function loadConfig() {
+      try {
+        const res = await fetch('/api/config');
+        config = await res.json();
+        populateRoles();
+      } catch (err) {
+        showToast('Failed to load configuration');
+      }
+    }
+
+    // Load today's entries
+    async function loadTodayEntries() {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const res = await fetch(`/api/entries?date=${today}`);
+        entries = await res.json();
+        renderEntries();
+      } catch (err) {
+        showToast('Failed to load entries');
+      }
+    }
+
+    // Populate dropdowns
+    function populateRoles() {
+      roleSelect.innerHTML = '<option value="">Select a role...</option>';
+      Object.keys(config).forEach(role => {
+        const option = document.createElement('option');
+        option.value = role;
+        option.textContent = role;
+        roleSelect.appendChild(option);
+      });
+    }
+
+    function onRoleChange() {
+      const role = roleSelect.value;
+      currentSelection.role = role;
+      currentSelection.task = '';
+      currentSelection.subtask = '';
+
+      // Save role preference
+      if (role) {
+        localStorage.setItem('timetracker_role', role);
+      }
+
+      taskSelect.innerHTML = '<option value="">Select a task...</option>';
+      subtaskSelect.innerHTML = '<option value="">Select a subtask...</option>';
+
+      if (role && config[role]) {
+        taskSelect.disabled = false;
+        Object.keys(config[role]).forEach(task => {
+          const option = document.createElement('option');
+          option.value = task;
+          option.textContent = task;
+          taskSelect.appendChild(option);
+        });
+      } else {
+        taskSelect.disabled = true;
+      }
+
+      subtaskSelect.disabled = true;
+      updateGoButton();
+    }
+
+    function onTaskChange() {
+      const task = taskSelect.value;
+      currentSelection.task = task;
+      currentSelection.subtask = '';
+
+      subtaskSelect.innerHTML = '<option value="">Select a subtask...</option>';
+
+      if (task && config[currentSelection.role][task]) {
+        subtaskSelect.disabled = false;
+        config[currentSelection.role][task].forEach(subtask => {
+          const option = document.createElement('option');
+          option.value = subtask;
+          option.textContent = subtask;
+          subtaskSelect.appendChild(option);
+        });
+      } else {
+        subtaskSelect.disabled = true;
+      }
+
+      updateGoButton();
+    }
+
+    function onSubtaskChange() {
+      currentSelection.subtask = subtaskSelect.value;
+      updateGoButton();
+    }
+
+    function updateGoButton() {
+      const { role, task, subtask } = currentSelection;
+      goBtn.disabled = !role || !task || !subtask || !nameInput.value.trim();
+    }
+
+    // Timer functions
+    function startTimer() {
+      timerStart = new Date();
+      timerTask.textContent = `${currentSelection.task} > ${currentSelection.subtask}`;
+      timerClock.textContent = '00:00';
+      noteInput.value = '';
+
+      mainScreen.classList.add('hidden');
+      timerScreen.classList.add('active');
+
+      timerInterval = setInterval(updateTimerDisplay, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const elapsed = Math.floor((new Date() - timerStart) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      timerClock.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    async function stopTimer() {
+      clearInterval(timerInterval);
+      const endTime = new Date();
+      const duration = Math.floor((endTime - timerStart) / 1000);
+
+      const entry = {
+        name: nameInput.value.trim(),
+        role: currentSelection.role,
+        task: currentSelection.task,
+        subtask: currentSelection.subtask,
+        startTime: timerStart.toISOString(),
+        endTime: endTime.toISOString(),
+        duration: duration,
+        note: noteInput.value.trim()
+      };
+
+      try {
+        const res = await fetch('/api/entries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(entry)
+        });
+        const data = await res.json();
+        entries.push(data.entry);
+        renderEntries();
+        showToast('Time logged!');
+      } catch (err) {
+        showToast('Failed to save entry');
+      }
+
+      // Return to main screen
+      mainScreen.classList.remove('hidden');
+      timerScreen.classList.remove('active');
+    }
+
+    // Render entries list
+    function renderEntries() {
+      if (entries.length === 0) {
+        entryList.innerHTML = '<li class="empty-state">No entries yet today</li>';
+        totalTime.textContent = '';
+        return;
+      }
+
+      // Sort by most recent first
+      const sorted = [...entries].sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+
+      entryList.innerHTML = sorted.map(entry => `
+        <li class="entry-item">
+          <div class="entry-info">
+            <div class="entry-task">${escapeHtml(entry.task)} > ${escapeHtml(entry.subtask)}</div>
+            <div class="entry-meta">${escapeHtml(entry.name)}${entry.note ? ' - ' + escapeHtml(entry.note) : ''}</div>
+          </div>
+          <div class="entry-duration">${formatDuration(entry.duration)}</div>
+          <button class="entry-delete" onclick="deleteEntry('${entry.id}')">&times;</button>
+        </li>
+      `).join('');
+
+      // Calculate total time
+      const totalSeconds = entries.reduce((sum, e) => sum + e.duration, 0);
+      totalTime.textContent = `Total: ${formatDuration(totalSeconds)}`;
+    }
+
+    async function deleteEntry(id) {
+      if (!confirm('Delete this entry?')) return;
+
+      try {
+        await fetch(`/api/entries/${id}`, { method: 'DELETE' });
+        entries = entries.filter(e => e.id !== id);
+        renderEntries();
+        showToast('Entry deleted');
+      } catch (err) {
+        showToast('Failed to delete entry');
+      }
+    }
+
+    // Config modal
+    function openConfigModal(e) {
+      e.preventDefault();
+      renderConfigEditor();
+      configModal.classList.add('active');
+    }
+
+    function closeConfigModal() {
+      configModal.classList.remove('active');
+    }
+
+    function renderConfigEditor() {
+      let html = '<div class="config-section">';
+
+      Object.keys(config).forEach((role, roleIndex) => {
+        html += `
+          <div class="config-item">
+            <input type="text" class="role-input" data-role-index="${roleIndex}" value="${escapeHtml(role)}" placeholder="Role name">
+            <button onclick="removeRole(${roleIndex})" title="Remove role">&times;</button>
+          </div>
+          <div class="nested">
+        `;
+
+        Object.keys(config[role]).forEach((task, taskIndex) => {
+          html += `
+            <div class="config-item">
+              <input type="text" class="task-input" data-role-index="${roleIndex}" data-task-index="${taskIndex}" value="${escapeHtml(task)}" placeholder="Task name">
+              <button onclick="removeTask(${roleIndex}, ${taskIndex})" title="Remove task">&times;</button>
+            </div>
+            <div class="nested">
+          `;
+
+          config[role][task].forEach((subtask, subtaskIndex) => {
+            html += `
+              <div class="config-item">
+                <input type="text" class="subtask-input" data-role-index="${roleIndex}" data-task-index="${taskIndex}" data-subtask-index="${subtaskIndex}" value="${escapeHtml(subtask)}" placeholder="Subtask name">
+                <button onclick="removeSubtask(${roleIndex}, ${taskIndex}, ${subtaskIndex})" title="Remove subtask">&times;</button>
+              </div>
+            `;
+          });
+
+          html += `
+              <button class="add-btn" onclick="addSubtask(${roleIndex}, ${taskIndex})">+ Add Subtask</button>
+            </div>
+          `;
+        });
+
+        html += `
+            <button class="add-btn" onclick="addTask(${roleIndex})">+ Add Task</button>
+          </div>
+        `;
+      });
+
+      html += `
+        <button class="add-btn" onclick="addRole()">+ Add Role</button>
+      </div>`;
+
+      configBody.innerHTML = html;
+    }
+
+    // Config modification functions
+    window.addRole = function() {
+      config['New Role'] = { 'New Task': ['New Subtask'] };
+      renderConfigEditor();
+    };
+
+    window.removeRole = function(roleIndex) {
+      const roles = Object.keys(config);
+      delete config[roles[roleIndex]];
+      renderConfigEditor();
+    };
+
+    window.addTask = function(roleIndex) {
+      const role = Object.keys(config)[roleIndex];
+      config[role]['New Task'] = ['New Subtask'];
+      renderConfigEditor();
+    };
+
+    window.removeTask = function(roleIndex, taskIndex) {
+      const role = Object.keys(config)[roleIndex];
+      const task = Object.keys(config[role])[taskIndex];
+      delete config[role][task];
+      renderConfigEditor();
+    };
+
+    window.addSubtask = function(roleIndex, taskIndex) {
+      const role = Object.keys(config)[roleIndex];
+      const task = Object.keys(config[role])[taskIndex];
+      config[role][task].push('New Subtask');
+      renderConfigEditor();
+    };
+
+    window.removeSubtask = function(roleIndex, taskIndex, subtaskIndex) {
+      const role = Object.keys(config)[roleIndex];
+      const task = Object.keys(config[role])[taskIndex];
+      config[role][task].splice(subtaskIndex, 1);
+      renderConfigEditor();
+    };
+
+    async function saveConfig() {
+      // Collect values from inputs
+      const newConfig = {};
+      const roleInputs = document.querySelectorAll('.role-input');
+
+      roleInputs.forEach(roleInput => {
+        const roleIndex = parseInt(roleInput.dataset.roleIndex);
+        const roleName = roleInput.value.trim() || `Role ${roleIndex + 1}`;
+        newConfig[roleName] = {};
+
+        const taskInputs = document.querySelectorAll(`.task-input[data-role-index="${roleIndex}"]`);
+        taskInputs.forEach(taskInput => {
+          const taskIndex = parseInt(taskInput.dataset.taskIndex);
+          const taskName = taskInput.value.trim() || `Task ${taskIndex + 1}`;
+          newConfig[roleName][taskName] = [];
+
+          const subtaskInputs = document.querySelectorAll(
+            `.subtask-input[data-role-index="${roleIndex}"][data-task-index="${taskIndex}"]`
+          );
+          subtaskInputs.forEach(subtaskInput => {
+            const subtaskName = subtaskInput.value.trim() || 'Subtask';
+            newConfig[roleName][taskName].push(subtaskName);
+          });
+        });
+      });
+
+      try {
+        await fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newConfig)
+        });
+        config = newConfig;
+        populateRoles();
+        closeConfigModal();
+        showToast('Configuration saved!');
+      } catch (err) {
+        showToast('Failed to save configuration');
+      }
+    }
+
+    // Export CSV
+    function exportCSV(e) {
+      e.preventDefault();
+      window.location.href = '/api/export';
+    }
+
+    // Utility functions
+    function formatDuration(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      if (mins >= 60) {
+        const hours = Math.floor(mins / 60);
+        const remainingMins = mins % 60;
+        return `${hours}h ${remainingMins}m`;
+      }
+      return `${mins}m ${secs}s`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Also update go button when name changes
+    nameInput.addEventListener('input', updateGoButton);
+
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
