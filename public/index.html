@@ -11,11 +11,26 @@
       box-sizing: border-box;
     }
 
+    :root {
+      --primary: #2d8a3e;
+      --primary-dark: #1a5f2a;
+      --primary-light: #e8f5e9;
+      --primary-lighter: #c8e6c9;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, #1a5f2a 0%, #2d8a3e 100%);
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
       min-height: 100vh;
       color: #333;
+      transition: background 0.3s;
+    }
+
+    body.tennis-theme {
+      --primary: #1976d2;
+      --primary-dark: #0d47a1;
+      --primary-light: #e3f2fd;
+      --primary-lighter: #bbdefb;
     }
 
     .container {
@@ -57,7 +72,7 @@
     }
 
     .week-nav button {
-      background: #2d8a3e;
+      background: var(--primary);
       color: white;
       border: none;
       padding: 8px 16px;
@@ -68,7 +83,7 @@
     }
 
     .week-nav button:hover {
-      background: #1a5f2a;
+      background: var(--primary-dark);
     }
 
     .week-nav .current-week {
@@ -93,7 +108,7 @@
 
     .view-toggle button.active {
       background: white;
-      color: #2d8a3e;
+      color: var(--primary);
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
@@ -176,7 +191,7 @@
     }
 
     .day-header.today {
-      background: #2d8a3e;
+      background: var(--primary);
     }
 
     .day-header.today .day-name,
@@ -192,13 +207,13 @@
     }
 
     .booking {
-      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-      border-left: 3px solid #2d8a3e;
+      background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-lighter) 100%);
+      border-left: 3px solid var(--primary);
       padding: 8px 10px;
       border-radius: 6px;
       font-size: 13px;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s, background 0.3s, border-color 0.3s;
     }
 
     .booking:hover {
@@ -208,7 +223,7 @@
 
     .booking .time {
       font-weight: 600;
-      color: #1a5f2a;
+      color: var(--primary-dark);
       font-size: 12px;
     }
 
@@ -231,9 +246,9 @@
     }
 
     .add-booking-btn:hover {
-      border-color: #2d8a3e;
-      color: #2d8a3e;
-      background: #f0fff4;
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
     }
 
     /* Modal */
@@ -277,8 +292,9 @@
 
     .modal-header {
       padding: 20px;
-      background: #2d8a3e;
+      background: var(--primary);
       color: white;
+      transition: background 0.3s;
     }
 
     .modal-header h2 {
@@ -316,7 +332,7 @@
     .form-group textarea:focus,
     .form-group select:focus {
       outline: none;
-      border-color: #2d8a3e;
+      border-color: var(--primary);
     }
 
     .time-row {
@@ -344,12 +360,13 @@
     }
 
     .btn-primary {
-      background: #2d8a3e;
+      background: var(--primary);
       color: white;
+      transition: background 0.2s;
     }
 
     .btn-primary:hover {
-      background: #1a5f2a;
+      background: var(--primary-dark);
     }
 
     .btn-secondary {
@@ -502,7 +519,7 @@
     }
 
     .month-day.today .month-day-number {
-      background: #2d8a3e;
+      background: var(--primary);
       color: white;
       border-radius: 50%;
       width: 28px;
@@ -510,6 +527,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background 0.3s;
     }
 
     .month-day .booking {
@@ -531,7 +549,7 @@
 
     .month-day .more-bookings {
       font-size: 11px;
-      color: #2d8a3e;
+      color: var(--primary);
       padding: 2px 6px;
       cursor: pointer;
     }
@@ -566,7 +584,7 @@
         display: inline-block;
         width: 6px;
         height: 6px;
-        background: #2d8a3e;
+        background: var(--primary);
         border-radius: 50%;
         margin: 1px;
       }
@@ -703,6 +721,9 @@
 
       document.getElementById('padelTab').classList.toggle('active', court === 'padel');
       document.getElementById('tennisTab').classList.toggle('active', court === 'tennis');
+
+      // Toggle theme
+      document.body.classList.toggle('tennis-theme', court === 'tennis');
 
       loadData();
     }
