@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bunny Run Racket Club</title>
+  <title>Arcos | Founder-Led Marketing Agency</title>
+  <meta name="description" content="Arcos is a founder-led marketing agency helping brands grow with strategic, hands-on marketing.">
   <style>
     * {
       margin: 0;
@@ -12,1217 +13,319 @@
     }
 
     :root {
-      --primary: #2d8a3e;
-      --primary-dark: #1a5f2a;
-      --primary-light: #e8f5e9;
-      --primary-lighter: #c8e6c9;
+      --primary: #1a1a2e;
+      --secondary: #16213e;
+      --accent: #e94560;
+      --light: #f5f5f5;
+      --text: #333;
+      --text-light: #666;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-      min-height: 100vh;
-      color: #333;
-      transition: background 0.3s;
+      line-height: 1.6;
+      color: var(--text);
     }
 
-    body.tennis-theme {
-      --primary: #1976d2;
-      --primary-dark: #0d47a1;
-      --primary-light: #e3f2fd;
-      --primary-lighter: #bbdefb;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    /* Login screen */
-    .login-screen {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .login-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      padding: 40px;
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
       width: 100%;
-      max-width: 360px;
-      text-align: center;
-    }
-
-    .login-card h1 {
-      color: var(--primary);
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-    }
-
-    .login-card p {
-      color: #666;
-      margin-bottom: 24px;
-      font-size: 14px;
-    }
-
-    .login-card input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e9ecef;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-
-    .login-card input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .login-card button {
-      width: 100%;
-      padding: 12px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .login-card button:hover {
-      background: var(--primary-dark);
-    }
-
-    .login-error {
-      color: #dc3545;
-      font-size: 14px;
-      margin-top: 12px;
-      display: none;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    header {
-      text-align: center;
-      padding: 20px 0 30px;
-      color: white;
-    }
-
-    header h1 {
-      font-size: 2rem;
-      margin-bottom: 5px;
-    }
-
-    header p {
-      opacity: 0.9;
-      font-size: 1rem;
-    }
-
-    .card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
-    }
-
-    .week-nav {
+      padding: 1.5rem 5%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 20px;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .week-nav button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-
-    .week-nav button:hover {
-      background: var(--primary-dark);
-    }
-
-    .week-nav .current-week {
-      font-weight: 600;
-      color: #333;
-    }
-
-    .view-toggle {
-      display: flex;
-      gap: 4px;
-      background: #e9ecef;
-      padding: 4px;
-      border-radius: 8px;
-    }
-
-    .view-toggle button {
-      background: transparent;
-      color: #666;
-      padding: 6px 12px;
-      font-size: 13px;
-    }
-
-    .view-toggle button.active {
       background: white;
-      color: var(--primary);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .view-toggle button:hover:not(.active) {
-      background: rgba(255,255,255,0.5);
-    }
-
-    .court-tabs {
-      display: flex;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .court-tab {
-      flex: 1;
-      padding: 14px 20px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      color: #666;
-      transition: all 0.2s;
-      border-bottom: 3px solid transparent;
-    }
-
-    .court-tab:hover {
-      background: #f0f0f0;
-    }
-
-    .court-tab.active {
-      color: #2d8a3e;
-      border-bottom-color: #2d8a3e;
-      background: white;
-    }
-
-    .court-tab.padel.active {
-      color: #2d8a3e;
-      border-bottom-color: #2d8a3e;
-    }
-
-    .court-tab.tennis.active {
-      color: #1976d2;
-      border-bottom-color: #1976d2;
-    }
-
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 1px;
-      background: #e9ecef;
-    }
-
-    .day-column {
-      background: white;
-      min-height: 300px;
-    }
-
-    .day-header {
-      padding: 12px 8px;
-      text-align: center;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-      position: sticky;
-      top: 0;
-    }
-
-    .day-header .day-name {
-      font-size: 12px;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .day-header .day-number {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .day-header.today {
-      background: var(--primary);
-    }
-
-    .day-header.today .day-name,
-    .day-header.today .day-number {
-      color: white;
-    }
-
-    .day-bookings {
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .booking {
-      background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-lighter) 100%);
-      border-left: 3px solid var(--primary);
-      padding: 8px 10px;
-      border-radius: 6px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s, background 0.3s, border-color 0.3s;
-    }
-
-    .booking:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .booking .time {
-      font-weight: 600;
-      color: var(--primary-dark);
-      font-size: 12px;
-    }
-
-    .booking .name {
-      color: #333;
-      margin-top: 2px;
-    }
-
-    .add-booking-btn {
-      width: 100%;
-      padding: 10px;
-      margin-top: 4px;
-      background: transparent;
-      border: 2px dashed #ccc;
-      border-radius: 6px;
-      color: #999;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
-
-    .add-booking-btn:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: var(--primary-light);
-    }
-
-    /* Modal */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
       z-index: 1000;
-      padding: 20px;
     }
 
-    .modal-overlay.active {
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+      letter-spacing: -1px;
+    }
+
+    .nav-links {
       display: flex;
+      gap: 2rem;
+      list-style: none;
     }
 
-    .modal {
-      background: white;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 400px;
-      overflow: hidden;
-      animation: modalIn 0.2s ease-out;
-    }
-
-    @keyframes modalIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    .modal-header {
-      padding: 20px;
-      background: var(--primary);
-      color: white;
-      transition: background 0.3s;
-    }
-
-    .modal-header h2 {
-      font-size: 1.25rem;
-    }
-
-    .modal-body {
-      padding: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text);
       font-weight: 500;
-      color: #333;
-      font-size: 14px;
+      transition: color 0.3s;
     }
 
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 2px solid #e9ecef;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.2s;
+    .nav-links a:hover {
+      color: var(--accent);
     }
 
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: var(--primary);
+    .nav-cta {
+      background: var(--primary);
+      color: white !important;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
     }
 
-    .time-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+    .nav-cta:hover {
+      background: var(--secondary) !important;
+      color: white !important;
     }
 
-    .modal-footer {
-      padding: 15px 20px;
-      background: #f8f9fa;
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
       display: flex;
-      gap: 10px;
-      justify-content: flex-end;
+      align-items: center;
+      padding: 8rem 5% 4rem;
+      background: linear-gradient(135deg, var(--light) 0%, white 100%);
+    }
+
+    .hero-content {
+      max-width: 700px;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-light);
+      margin-bottom: 2rem;
+      max-width: 500px;
     }
 
     .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
+      display: inline-block;
+      padding: 1rem 2rem;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: transform 0.3s, box-shadow 0.3s;
     }
 
-    .btn-primary {
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+    }
+
+    /* Services Section */
+    .services {
+      padding: 6rem 5%;
+      background: white;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-title h2 {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .section-title p {
+      color: var(--text-light);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .service-card {
+      padding: 2rem;
+      background: var(--light);
+      border-radius: 12px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .service-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+
+    .service-card h3 {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .service-card p {
+      color: var(--text-light);
+    }
+
+    /* About Section */
+    .about {
+      padding: 6rem 5%;
       background: var(--primary);
       color: white;
-      transition: background 0.2s;
     }
 
-    .btn-primary:hover {
-      background: var(--primary-dark);
+    .about-content {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
     }
 
-    .btn-secondary {
-      background: #e9ecef;
-      color: #333;
+    .about h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
     }
 
-    .btn-secondary:hover {
-      background: #dee2e6;
+    .about p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      margin-bottom: 1rem;
     }
 
-    .btn-danger {
-      background: #dc3545;
+    /* Contact Section */
+    .contact {
+      padding: 6rem 5%;
+      background: white;
+    }
+
+    .contact-content {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .contact h2 {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .contact p {
+      color: var(--text-light);
+      margin-bottom: 2rem;
+    }
+
+    .contact-email {
+      font-size: 1.5rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .contact-email:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    footer {
+      padding: 2rem 5%;
+      background: var(--secondary);
       color: white;
+      text-align: center;
     }
 
-    .btn-danger:hover {
-      background: #c82333;
-    }
-
-    /* Toast notifications */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: #333;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 14px;
-      opacity: 0;
-      transition: all 0.3s;
-      z-index: 2000;
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-
-    .toast.error {
-      background: #dc3545;
-    }
-
-    .toast.success {
-      background: #28a745;
+    footer p {
+      opacity: 0.7;
     }
 
     /* Responsive */
     @media (max-width: 768px) {
-      .container {
-        padding: 10px;
+      .hero h1 {
+        font-size: 2.5rem;
       }
 
-      header h1 {
-        font-size: 1.5rem;
-      }
-
-      .calendar {
-        display: block;
-      }
-
-      .day-column {
-        min-height: auto;
-        border-bottom: 1px solid #e9ecef;
-      }
-
-      .day-column:last-child {
-        border-bottom: none;
-      }
-
-      .day-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 15px;
-      }
-
-      .day-header .day-name {
-        font-size: 14px;
-      }
-
-      .day-header .day-number {
-        font-size: 1.25rem;
-      }
-
-      .day-bookings {
-        padding: 10px 15px;
-      }
-
-      .day-bookings:empty::before {
-        content: 'No bookings';
-        color: #999;
-        font-size: 13px;
-      }
-    }
-
-    /* Empty state */
-    .empty-day {
-      color: #ccc;
-      font-size: 12px;
-      text-align: center;
-      padding: 20px 0;
-    }
-
-    /* Monthly view */
-    .calendar.month-view {
-      grid-template-columns: repeat(7, 1fr);
-      grid-template-rows: auto;
-    }
-
-    .month-day-header {
-      background: #f8f9fa;
-      padding: 8px;
-      text-align: center;
-      font-size: 12px;
-      font-weight: 600;
-      color: #666;
-      text-transform: uppercase;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .month-day {
-      background: white;
-      min-height: 100px;
-      padding: 4px;
-      border-bottom: 1px solid #e9ecef;
-      border-right: 1px solid #e9ecef;
-    }
-
-    .month-day:nth-child(7n) {
-      border-right: none;
-    }
-
-    .month-day.other-month {
-      background: #fafafa;
-    }
-
-    .month-day.other-month .month-day-number {
-      color: #ccc;
-    }
-
-    .month-day-number {
-      font-size: 14px;
-      font-weight: 600;
-      color: #333;
-      padding: 4px 6px;
-      display: inline-block;
-    }
-
-    .month-day.today .month-day-number {
-      background: var(--primary);
-      color: white;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.3s;
-    }
-
-    .month-day .booking {
-      padding: 3px 6px;
-      font-size: 11px;
-      margin-bottom: 2px;
-    }
-
-    .month-day .booking .time {
-      font-size: 10px;
-    }
-
-    .month-day .booking .name {
-      font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .month-day .more-bookings {
-      font-size: 11px;
-      color: var(--primary);
-      padding: 2px 6px;
-      cursor: pointer;
-    }
-
-    .month-day .add-booking-btn {
-      padding: 4px;
-      font-size: 11px;
-      margin-top: 2px;
-    }
-
-    @media (max-width: 768px) {
-      .calendar.month-view {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-      }
-
-      .month-day {
-        min-height: 60px;
-        padding: 2px;
-      }
-
-      .month-day-number {
-        font-size: 12px;
-        padding: 2px 4px;
-      }
-
-      .month-day .booking {
+      .nav-links {
         display: none;
       }
 
-      .month-day .booking-dot {
-        display: inline-block;
-        width: 6px;
-        height: 6px;
-        background: var(--primary);
-        border-radius: 50%;
-        margin: 1px;
-      }
-
-      .month-day .add-booking-btn {
-        display: none;
-      }
-
-      .view-toggle {
-        order: 3;
-        width: 100%;
-        justify-content: center;
-        margin-top: 10px;
-      }
-
-      .week-nav {
-        flex-wrap: wrap;
+      .section-title h2,
+      .about h2,
+      .contact h2 {
+        font-size: 2rem;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Login Screen -->
-  <div class="login-screen" id="loginScreen">
-    <div class="login-card">
-      <h1>Bunny Run Racket Club</h1>
-      <p>Enter the password to access bookings</p>
-      <input type="password" id="passwordInput" placeholder="Password" onkeypress="if(event.key==='Enter')checkPassword()">
-      <button onclick="checkPassword()">Enter</button>
-      <div class="login-error" id="loginError">Incorrect password</div>
+  <!-- Navigation -->
+  <nav>
+    <a href="#" class="logo">Arcos</a>
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact" class="nav-cta">Get in Touch</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Marketing that moves the needle.</h1>
+      <p>Arcos is a founder-led agency that partners with ambitious brands to drive real growth. No fluff, just results.</p>
+      <a href="#contact" class="btn">Let's Talk</a>
     </div>
-  </div>
+  </section>
 
-  <!-- Main App -->
-  <div class="container hidden" id="mainApp">
-    <header>
-      <h1>Bunny Run Racket Club</h1>
-      <p>Book your court time</p>
-    </header>
-
-    <div class="card">
-      <div class="court-tabs">
-        <button class="court-tab padel active" id="padelTab" onclick="setCourt('padel')">Padel Court</button>
-        <button class="court-tab tennis" id="tennisTab" onclick="setCourt('tennis')">Tennis Court</button>
-      </div>
-      <div class="week-nav">
-        <button onclick="previousPeriod()">&larr; Previous</button>
-        <span class="current-week" id="currentWeek"></span>
-        <button onclick="nextPeriod()">Next &rarr;</button>
-        <div class="view-toggle">
-          <button id="weekViewBtn" class="active" onclick="setView('week')">Week</button>
-          <button id="monthViewBtn" onclick="setView('month')">Month</button>
-        </div>
-      </div>
-      <div class="calendar" id="calendar"></div>
+  <!-- Services Section -->
+  <section class="services" id="services">
+    <div class="section-title">
+      <h2>What We Do</h2>
+      <p>Strategic marketing services tailored to your growth stage and goals.</p>
     </div>
-  </div>
-
-  <!-- Booking Modal -->
-  <div class="modal-overlay" id="bookingModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 id="modalTitle">New Booking</h2>
+    <div class="services-grid">
+      <div class="service-card">
+        <h3>Brand Strategy</h3>
+        <p>Define your positioning, messaging, and visual identity to stand out in a crowded market.</p>
       </div>
-      <div class="modal-body">
-        <form id="bookingForm">
-          <input type="hidden" id="bookingId">
-          <input type="hidden" id="bookingDate">
-
-          <div class="form-group">
-            <label for="courtSelect">Court</label>
-            <select id="courtSelect" required>
-              <option value="padel">Padel Court</option>
-              <option value="tennis">Tennis Court</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="bookedBy">Your Name</label>
-            <input type="text" id="bookedBy" required placeholder="Who's booking?">
-          </div>
-
-          <div class="time-row">
-            <div class="form-group">
-              <label for="startTime">Start Time</label>
-              <select id="startTime" required></select>
-            </div>
-            <div class="form-group">
-              <label for="endTime">End Time</label>
-              <select id="endTime" required></select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="notes">Notes (optional)</label>
-            <textarea id="notes" rows="2" placeholder="Any details..."></textarea>
-          </div>
-        </form>
+      <div class="service-card">
+        <h3>Growth Marketing</h3>
+        <p>Data-driven campaigns across paid and organic channels to acquire and retain customers.</p>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteBooking()" style="display: none; margin-right: auto;">Delete</button>
-        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="saveBooking()">Save</button>
+      <div class="service-card">
+        <h3>Content & Creative</h3>
+        <p>Compelling content that tells your story and converts your audience into customers.</p>
       </div>
     </div>
-  </div>
-
-  <!-- Toast -->
-  <div class="toast" id="toast"></div>
-
-  <script>
-    const API_URL = '/api/bookings';
-    let currentWeekStart = getMonday(new Date());
-    let currentMonth = new Date();
-    let currentView = 'week'; // 'week' or 'month'
-    let currentCourt = 'padel'; // 'padel' or 'tennis'
-    let bookings = [];
-
-    // Password functions
-    async function checkPassword() {
-      const password = document.getElementById('passwordInput').value;
-      const errorEl = document.getElementById('loginError');
-
-      try {
-        const response = await fetch('/api/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password })
-        });
-
-        if (response.ok) {
-          localStorage.setItem('bunny_auth', password);
-          showMainApp();
-          errorEl.style.display = 'none';
-        } else {
-          errorEl.style.display = 'block';
-        }
-      } catch (error) {
-        errorEl.style.display = 'block';
-      }
-    }
-
-    async function verifyStoredPassword() {
-      const stored = localStorage.getItem('bunny_auth');
-      if (!stored) return false;
-
-      try {
-        const response = await fetch('/api/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: stored })
-        });
-        return response.ok;
-      } catch {
-        return false;
-      }
-    }
-
-    function showMainApp() {
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('mainApp').classList.remove('hidden');
-      initializeApp();
-    }
-
-    function initializeApp() {
-      populateTimeSelects();
-      loadData();
-
-      // Load saved name
-      const savedName = localStorage.getItem('padel_user_name');
-      if (savedName) {
-        document.getElementById('bookedBy').value = savedName;
-      }
-
-      // Load saved view preference
-      const savedView = localStorage.getItem('padel_view');
-      if (savedView) {
-        setView(savedView);
-      }
-
-      // Load saved court preference
-      const savedCourt = localStorage.getItem('bunny_court');
-      if (savedCourt) {
-        setCourt(savedCourt);
-      }
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', async () => {
-      const isValid = await verifyStoredPassword();
-      if (isValid) {
-        showMainApp();
-      }
-    });
-
-    function setCourt(court) {
-      currentCourt = court;
-      localStorage.setItem('bunny_court', court);
-
-      document.getElementById('padelTab').classList.toggle('active', court === 'padel');
-      document.getElementById('tennisTab').classList.toggle('active', court === 'tennis');
-
-      // Toggle theme
-      document.body.classList.toggle('tennis-theme', court === 'tennis');
-
-      loadData();
-    }
-
-    function getMonday(date) {
-      const d = new Date(date);
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      return new Date(d.setDate(diff));
-    }
-
-    function formatDate(date) {
-      return date.toISOString().split('T')[0];
-    }
-
-    function setView(view) {
-      currentView = view;
-      localStorage.setItem('padel_view', view);
-
-      document.getElementById('weekViewBtn').classList.toggle('active', view === 'week');
-      document.getElementById('monthViewBtn').classList.toggle('active', view === 'month');
-
-      loadData();
-    }
-
-    function previousPeriod() {
-      if (currentView === 'week') {
-        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-      } else {
-        currentMonth.setMonth(currentMonth.getMonth() - 1);
-      }
-      loadData();
-    }
-
-    function nextPeriod() {
-      if (currentView === 'week') {
-        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-      } else {
-        currentMonth.setMonth(currentMonth.getMonth() + 1);
-      }
-      loadData();
-    }
-
-    async function loadData() {
-      if (currentView === 'week') {
-        await loadWeek();
-      } else {
-        await loadMonth();
-      }
-    }
-
-    function populateTimeSelects() {
-      const startSelect = document.getElementById('startTime');
-      const endSelect = document.getElementById('endTime');
-
-      for (let h = 7; h <= 22; h++) {
-        for (let m = 0; m < 60; m += 30) {
-          const time = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-          const label = formatTimeLabel(time);
-
-          startSelect.innerHTML += `<option value="${time}">${label}</option>`;
-          endSelect.innerHTML += `<option value="${time}">${label}</option>`;
-        }
-      }
-      // Add end time for 23:00
-      endSelect.innerHTML += `<option value="23:00">11:00 PM</option>`;
-
-      // Set defaults
-      startSelect.value = '09:00';
-      endSelect.value = '10:30';
-    }
-
-    function formatTimeLabel(time) {
-      const [h, m] = time.split(':');
-      const hour = parseInt(h);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const hour12 = hour % 12 || 12;
-      return `${hour12}:${m} ${ampm}`;
-    }
-
-    async function loadWeek() {
-      const weekEnd = new Date(currentWeekStart);
-      weekEnd.setDate(weekEnd.getDate() + 6);
-
-      // Update header
-      const options = { month: 'short', day: 'numeric' };
-      document.getElementById('currentWeek').textContent =
-        `${currentWeekStart.toLocaleDateString('en-US', options)} - ${weekEnd.toLocaleDateString('en-US', options)}`;
-
-      try {
-        const response = await fetch(
-          `${API_URL}/range?start=${formatDate(currentWeekStart)}&end=${formatDate(weekEnd)}`
-        );
-        bookings = await response.json();
-        renderCalendar();
-      } catch (error) {
-        showToast('Failed to load bookings', 'error');
-      }
-    }
-
-    function renderCalendar() {
-      const calendar = document.getElementById('calendar');
-      calendar.innerHTML = '';
-      calendar.className = 'calendar';
-
-      const today = formatDate(new Date());
-      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(currentWeekStart);
-        date.setDate(date.getDate() + i);
-        const dateStr = formatDate(date);
-        const isToday = dateStr === today;
-
-        const dayBookings = bookings
-          .filter(b => b.date === dateStr && b.court === currentCourt)
-          .sort((a, b) => a.startTime.localeCompare(b.startTime));
-
-        const column = document.createElement('div');
-        column.className = 'day-column';
-        column.innerHTML = `
-          <div class="day-header ${isToday ? 'today' : ''}">
-            <div class="day-name">${dayNames[i]}</div>
-            <div class="day-number">${date.getDate()}</div>
-          </div>
-          <div class="day-bookings">
-            ${dayBookings.map(b => `
-              <div class="booking" onclick="editBooking('${b.id}')">
-                <div class="time">${formatTimeLabel(b.startTime)} - ${formatTimeLabel(b.endTime)}</div>
-                <div class="name">${escapeHtml(b.bookedBy)}</div>
-                ${b.notes ? `<div class="notes" style="font-size:11px;color:#666;margin-top:2px;">${escapeHtml(b.notes)}</div>` : ''}
-              </div>
-            `).join('')}
-            <button class="add-booking-btn" onclick="openModal('${dateStr}')">+ Add Booking</button>
-          </div>
-        `;
-        calendar.appendChild(column);
-      }
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    async function loadMonth() {
-      const year = currentMonth.getFullYear();
-      const month = currentMonth.getMonth();
-
-      // Get first and last day to display (including padding days)
-      const firstOfMonth = new Date(year, month, 1);
-      const lastOfMonth = new Date(year, month + 1, 0);
-
-      // Start from Monday of the week containing the 1st
-      const startDate = getMonday(firstOfMonth);
-      // End on Sunday of the week containing the last day
-      const endDate = new Date(lastOfMonth);
-      const endDay = endDate.getDay();
-      if (endDay !== 0) {
-        endDate.setDate(endDate.getDate() + (7 - endDay));
-      }
-
-      // Update header
-      const options = { month: 'long', year: 'numeric' };
-      document.getElementById('currentWeek').textContent =
-        currentMonth.toLocaleDateString('en-US', options);
-
-      try {
-        const response = await fetch(
-          `${API_URL}/range?start=${formatDate(startDate)}&end=${formatDate(endDate)}`
-        );
-        bookings = await response.json();
-        renderMonthCalendar(startDate, endDate, month);
-      } catch (error) {
-        showToast('Failed to load bookings', 'error');
-      }
-    }
-
-    function renderMonthCalendar(startDate, endDate, currentMonthIndex) {
-      const calendar = document.getElementById('calendar');
-      calendar.innerHTML = '';
-      calendar.className = 'calendar month-view';
-
-      const today = formatDate(new Date());
-      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-      // Add day headers
-      dayNames.forEach(name => {
-        const header = document.createElement('div');
-        header.className = 'month-day-header';
-        header.textContent = name;
-        calendar.appendChild(header);
-      });
-
-      // Add days
-      const date = new Date(startDate);
-      while (date <= endDate) {
-        const dateStr = formatDate(date);
-        const isToday = dateStr === today;
-        const isOtherMonth = date.getMonth() !== currentMonthIndex;
-
-        const dayBookings = bookings
-          .filter(b => b.date === dateStr && b.court === currentCourt)
-          .sort((a, b) => a.startTime.localeCompare(b.startTime));
-
-        const dayEl = document.createElement('div');
-        dayEl.className = `month-day ${isToday ? 'today' : ''} ${isOtherMonth ? 'other-month' : ''}`;
-
-        const maxVisible = 2;
-        const visibleBookings = dayBookings.slice(0, maxVisible);
-        const hiddenCount = dayBookings.length - maxVisible;
-
-        dayEl.innerHTML = `
-          <div class="month-day-number">${date.getDate()}</div>
-          ${visibleBookings.map(b => `
-            <div class="booking" onclick="editBooking('${b.id}')">
-              <div class="time">${formatTimeLabel(b.startTime)}</div>
-              <div class="name">${escapeHtml(b.bookedBy)}</div>
-            </div>
-          `).join('')}
-          ${hiddenCount > 0 ? `<div class="more-bookings" onclick="openDayDetail('${dateStr}')">+${hiddenCount} more</div>` : ''}
-          ${dayBookings.map(() => '<span class="booking-dot"></span>').join('')}
-          <button class="add-booking-btn" onclick="openModal('${dateStr}')">+</button>
-        `;
-
-        calendar.appendChild(dayEl);
-        date.setDate(date.getDate() + 1);
-      }
-    }
-
-    function openDayDetail(dateStr) {
-      // Switch to week view showing this date
-      const date = new Date(dateStr);
-      currentWeekStart = getMonday(date);
-      setView('week');
-    }
-
-    function openModal(date) {
-      document.getElementById('modalTitle').textContent = 'New Booking';
-      document.getElementById('bookingId').value = '';
-      document.getElementById('bookingDate').value = date;
-      document.getElementById('notes').value = '';
-      document.getElementById('deleteBtn').style.display = 'none';
-      document.getElementById('courtSelect').value = currentCourt;
-
-      // Reset times
-      document.getElementById('startTime').value = '09:00';
-      document.getElementById('endTime').value = '10:30';
-
-      document.getElementById('bookingModal').classList.add('active');
-    }
-
-    function editBooking(id) {
-      const booking = bookings.find(b => b.id === id);
-      if (!booking) return;
-
-      document.getElementById('modalTitle').textContent = 'Edit Booking';
-      document.getElementById('bookingId').value = booking.id;
-      document.getElementById('bookingDate').value = booking.date;
-      document.getElementById('bookedBy').value = booking.bookedBy;
-      document.getElementById('startTime').value = booking.startTime;
-      document.getElementById('endTime').value = booking.endTime;
-      document.getElementById('notes').value = booking.notes || '';
-      document.getElementById('courtSelect').value = booking.court || 'padel';
-      document.getElementById('deleteBtn').style.display = 'block';
-
-      document.getElementById('bookingModal').classList.add('active');
-    }
-
-    function closeModal() {
-      document.getElementById('bookingModal').classList.remove('active');
-    }
-
-    async function saveBooking() {
-      const id = document.getElementById('bookingId').value;
-      const date = document.getElementById('bookingDate').value;
-      const bookedBy = document.getElementById('bookedBy').value.trim();
-      const startTime = document.getElementById('startTime').value;
-      const endTime = document.getElementById('endTime').value;
-      const notes = document.getElementById('notes').value.trim();
-      const court = document.getElementById('courtSelect').value;
-
-      if (!bookedBy) {
-        showToast('Please enter your name', 'error');
-        return;
-      }
-
-      if (startTime >= endTime) {
-        showToast('End time must be after start time', 'error');
-        return;
-      }
-
-      // Save name for next time
-      localStorage.setItem('padel_user_name', bookedBy);
-
-      try {
-        // If editing, delete old booking first
-        if (id) {
-          await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        }
-
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date, startTime, endTime, bookedBy, notes, court })
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to save');
-        }
-
-        closeModal();
-        loadData();
-        showToast('Booking saved!', 'success');
-      } catch (error) {
-        showToast(error.message, 'error');
-      }
-    }
-
-    async function deleteBooking() {
-      const id = document.getElementById('bookingId').value;
-      if (!id) return;
-
-      if (!confirm('Delete this booking?')) return;
-
-      try {
-        await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        closeModal();
-        loadData();
-        showToast('Booking deleted', 'success');
-      } catch (error) {
-        showToast('Failed to delete booking', 'error');
-      }
-    }
-
-    function showToast(message, type = '') {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.className = `toast ${type} show`;
-
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
-    }
-
-    // Close modal on overlay click
-    document.getElementById('bookingModal').addEventListener('click', (e) => {
-      if (e.target.id === 'bookingModal') {
-        closeModal();
-      }
-    });
-
-    // Close modal on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeModal();
-      }
-    });
-  </script>
+  </section>
+
+  <!-- About Section -->
+  <section class="about" id="about">
+    <div class="about-content">
+      <h2>Founder-Led. Results-Driven.</h2>
+      <p>At Arcos, you work directly with the founder. No account managers, no junior teams running your campaigns. Just experienced, hands-on marketing expertise dedicated to your success.</p>
+      <p>We've helped startups and established brands alike achieve measurable growth through strategic, thoughtful marketing.</p>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact" id="contact">
+    <div class="contact-content">
+      <h2>Ready to Grow?</h2>
+      <p>Let's discuss how Arcos can help you reach your goals.</p>
+      <a href="mailto:hello@arcos.agency" class="contact-email">hello@arcos.agency</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 Arcos. All rights reserved.</p>
+  </footer>
 </body>
 </html>
