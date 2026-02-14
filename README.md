@@ -74,9 +74,40 @@ node substack-to-beehiiv.js path/to/email_list.csv --send-welcome
 
 The script skips duplicates (already existing in Beehiiv) and tags all imports with `utm_source=substack_import` so you can track them.
 
+### Fully Automated Sync (no manual export)
+
+Since Substack has no API, this uses **Puppeteer** to log into your Substack dashboard, download the subscriber CSV automatically, and sync new subscribers to Beehiiv.
+
+**Prerequisites:**
+1. Set a password on your Substack account (Settings > Account > Set password)
+2. Add your Substack credentials to `.env`:
+   ```
+   SUBSTACK_EMAIL=you@example.com
+   SUBSTACK_PASSWORD=your_password
+   SUBSTACK_PUBLICATION=yourname
+   ```
+3. Install dependencies: `npm install`
+
+**Run it:**
+```bash
+# One-time automated sync
+npm run sync:auto
+
+# Run on a schedule — sync every 60 minutes
+npm run sync:cron
+
+# Dry run — download CSV only, don't push to Beehiiv
+node substack-to-beehiiv-auto.js --dry-run
+```
+
+The script tracks previously synced emails in `.synced-emails.json` so re-running is fast and only pushes genuinely new subscribers.
+
 ## Environment Variables
 
 - `PORT` - Server port (default: 3000)
-- `BEEHIIV_API_KEY` - Your Beehiiv API key (required for sync script)
-- `BEEHIIV_PUBLICATION_ID` - Your Beehiiv publication ID (required for sync script)
+- `SUBSTACK_EMAIL` - Your Substack login email (required for auto sync)
+- `SUBSTACK_PASSWORD` - Your Substack password (required for auto sync)
+- `SUBSTACK_PUBLICATION` - Your Substack subdomain (required for auto sync)
+- `BEEHIIV_API_KEY` - Your Beehiiv API key (required for sync)
+- `BEEHIIV_PUBLICATION_ID` - Your Beehiiv publication ID (required for sync)
 - `SYNC_DELAY_MS` - Delay between API calls in ms (default: 300)
