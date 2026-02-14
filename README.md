@@ -74,40 +74,44 @@ node substack-to-beehiiv.js path/to/email_list.csv --send-welcome
 
 The script skips duplicates (already existing in Beehiiv) and tags all imports with `utm_source=substack_import` so you can track them.
 
-### Fully Automated Sync (no manual export)
+### Fully Automated Sync (email-based, no manual export)
 
-Since Substack has no API, this uses **Puppeteer** to log into your Substack dashboard, download the subscriber CSV automatically, and sync new subscribers to Beehiiv.
+Monitors your email inbox for Substack's "new subscriber" notification emails and automatically adds each subscriber to Beehiiv in real-time. No scraping, no browser automation — just reads your own email via IMAP.
 
-**Prerequisites:**
-1. Set a password on your Substack account (Settings > Account > Set password)
-2. Add your Substack credentials to `.env`:
+**Gmail setup:**
+1. Enable IMAP in Gmail: Settings > Forwarding and POP/IMAP
+2. Create an App Password: Google Account > Security > App passwords
+3. Add your IMAP credentials to `.env`:
    ```
-   SUBSTACK_EMAIL=you@example.com
-   SUBSTACK_PASSWORD=your_password
-   SUBSTACK_PUBLICATION=yourname
+   IMAP_HOST=imap.gmail.com
+   IMAP_PORT=993
+   IMAP_USER=you@gmail.com
+   IMAP_PASS=your_app_password_here
    ```
-3. Install dependencies: `npm install`
+4. Make sure "New free subscriber" notifications are enabled in your Substack dashboard (Settings > Notifications)
 
 **Run it:**
 ```bash
-# One-time automated sync
+# Watch mode — stays connected, syncs new subscribers in real-time
 npm run sync:auto
 
-# Run on a schedule — sync every 60 minutes
-npm run sync:cron
+# Scan mode — process all existing notification emails once, then exit
+npm run sync:scan
 
-# Dry run — download CSV only, don't push to Beehiiv
-node substack-to-beehiiv-auto.js --dry-run
+# Dry run — show what would be synced, no API calls
+node substack-to-beehiiv-auto.js --scan --dry-run
 ```
 
-The script tracks previously synced emails in `.synced-emails.json` so re-running is fast and only pushes genuinely new subscribers.
+The script tracks previously synced emails in `.synced-emails.json` so re-running is safe and only pushes new subscribers.
 
 ## Environment Variables
 
 - `PORT` - Server port (default: 3000)
-- `SUBSTACK_EMAIL` - Your Substack login email (required for auto sync)
-- `SUBSTACK_PASSWORD` - Your Substack password (required for auto sync)
-- `SUBSTACK_PUBLICATION` - Your Substack subdomain (required for auto sync)
+- `IMAP_HOST` - IMAP server hostname (required for auto sync, e.g. `imap.gmail.com`)
+- `IMAP_PORT` - IMAP port (default: 993)
+- `IMAP_USER` - Your email address (required for auto sync)
+- `IMAP_PASS` - Your email password or app password (required for auto sync)
+- `IMAP_MAILBOX` - Mailbox to monitor (default: INBOX)
 - `BEEHIIV_API_KEY` - Your Beehiiv API key (required for sync)
 - `BEEHIIV_PUBLICATION_ID` - Your Beehiiv publication ID (required for sync)
 - `SYNC_DELAY_MS` - Delay between API calls in ms (default: 300)

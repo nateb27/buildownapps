@@ -8,11 +8,11 @@
     "dev": "node server.js",
     "sync": "node substack-to-beehiiv.js",
     "sync:auto": "node substack-to-beehiiv-auto.js",
-    "sync:cron": "node substack-to-beehiiv-auto.js --cron 60"
+    "sync:scan": "node substack-to-beehiiv-auto.js --scan"
   },
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
-    "puppeteer": "^24.2.1"
+    "imapflow": "^1.0.171"
   }
 }

@@ -1,26 +1,27 @@
 #!/usr/bin/env node
 
 /**
- * Automated Substack-to-Beehiiv Sync
+ * Automated Substack-to-Beehiiv Sync (Email-based)
  *
- * Fully automated — no manual CSV export needed.
- * Uses Puppeteer to log into your Substack dashboard, download the
- * subscriber CSV, then pushes new subscribers to Beehiiv via their API.
+ * Monitors your email inbox via IMAP for Substack's "new subscriber"
+ * notification emails, extracts the subscriber's email address, and
+ * adds them to Beehiiv automatically.
  *
- * Can be run on a cron schedule for hands-free ongoing sync.
+ * No scraping, no browser automation, no Substack TOS issues —
+ * you're just reading your own email.
  *
  * Usage:
- *   node substack-to-beehiiv-auto.js              # one-time sync
- *   node substack-to-beehiiv-auto.js --cron 60    # repeat every 60 minutes
- *   node substack-to-beehiiv-auto.js --dry-run    # download CSV only, don't push to Beehiiv
+ *   node substack-to-beehiiv-auto.js                # watch mode (real-time via IMAP IDLE)
+ *   node substack-to-beehiiv-auto.js --scan          # scan existing emails once, then exit
+ *   node substack-to-beehiiv-auto.js --dry-run       # show what would be synced, no API calls
  */
 
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
+const { ImapFlow } = require('imapflow');
 
 // ---------------------------------------------------------------------------
-// .env loader (no dependencies)
+// .env loader
 // ---------------------------------------------------------------------------
 
 function loadEnv() {
@@ -29,11 +30,11 @@ function loadEnv() {
   for (const line of fs.readFileSync(envPath, 'utf-8').split('\n')) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) continue;
-    const eqIndex = trimmed.indexOf('=');
-    if (eqIndex === -1) continue;
-    const key = trimmed.slice(0, eqIndex).trim();
-    const value = trimmed.slice(eqIndex + 1).trim().replace(/^["']|["']$/g, '');
-    if (!process.env[key]) process.env[key] = value;
+    const eq = trimmed.indexOf('=');
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
+    if (!process.env[key]) process.env[key] = val;
   }
 }
 
@@ -43,79 +44,33 @@ loadEnv();
 // Config
 // ---------------------------------------------------------------------------
 
-const SUBSTACK_EMAIL = process.env.SUBSTACK_EMAIL;
-const SUBSTACK_PASSWORD = process.env.SUBSTACK_PASSWORD;
-const SUBSTACK_PUBLICATION = process.env.SUBSTACK_PUBLICATION; // e.g. "yourname" from yourname.substack.com
+const IMAP_HOST = process.env.IMAP_HOST;                     // e.g. imap.gmail.com
+const IMAP_PORT = parseInt(process.env.IMAP_PORT, 10) || 993;
+const IMAP_USER = process.env.IMAP_USER;                     // your email address
+const IMAP_PASS = process.env.IMAP_PASS;                     // password or app password
+const IMAP_MAILBOX = process.env.IMAP_MAILBOX || 'INBOX';    // or a Gmail label
 
 const BEEHIIV_API_KEY = process.env.BEEHIIV_API_KEY;
 const BEEHIIV_PUBLICATION_ID = process.env.BEEHIIV_PUBLICATION_ID;
 const BEEHIIV_API_BASE = 'https://api.beehiiv.com/v2';
 
 const DELAY_MS = parseInt(process.env.SYNC_DELAY_MS, 10) || 300;
-const DOWNLOAD_DIR = path.join(__dirname, '.downloads');
 const SYNCED_FILE = path.join(__dirname, '.synced-emails.json');
 
-// ---------------------------------------------------------------------------
-// CSV Parsing
-// ---------------------------------------------------------------------------
-
-function* parseCSV(text) {
-  const fields = [];
-  let current = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '"') {
-      if (inQuotes && text[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (ch === ',' && !inQuotes) {
-      fields.push(current);
-      current = '';
-    } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
-      if (current.length > 0 || fields.length > 0) {
-        fields.push(current);
-        current = '';
-      }
-      if (fields.length > 0) yield fields.splice(0);
-      if (ch === '\r' && text[i + 1] === '\n') i++;
-    } else {
-      current += ch;
-    }
-  }
-  if (current.length > 0 || fields.length > 0) {
-    fields.push(current);
-    yield fields.splice(0);
-  }
-}
-
-function readSubscribersFromCSV(filePath) {
-  const rows = [...parseCSV(fs.readFileSync(filePath, 'utf-8'))];
-  if (rows.length === 0) throw new Error('CSV is empty');
-
-  const headers = rows[0].map(h => h.trim().toLowerCase());
-  const emailIdx = headers.indexOf('email');
-  if (emailIdx === -1) {
-    throw new Error(`No "email" column found. Columns: ${headers.join(', ')}`);
-  }
-
-  const subscribers = [];
-  for (let i = 1; i < rows.length; i++) {
-    const email = (rows[i][emailIdx] || '').trim().toLowerCase();
-    if (email && email.includes('@')) subscribers.push(email);
-  }
-  return subscribers;
-}
+// Substack sends notifications with subjects like:
+//   "New free subscriber on Substack"
+//   "New paid subscriber on Substack"
+const SUBSTACK_SUBJECT_PATTERNS = [
+  /new free subscriber/i,
+  /new paid subscriber/i,
+  /new subscriber to/i,
+];
 
 // ---------------------------------------------------------------------------
-// Already-synced tracking (avoids re-calling API for known subscribers)
+// Synced-email tracking
 // ---------------------------------------------------------------------------
 
-function loadSyncedEmails() {
+function loadSynced() {
   if (!fs.existsSync(SYNCED_FILE)) return new Set();
   try {
     return new Set(JSON.parse(fs.readFileSync(SYNCED_FILE, 'utf-8')));
@@ -124,177 +79,58 @@ function loadSyncedEmails() {
   }
 }
 
-function saveSyncedEmails(set) {
+function saveSynced(set) {
   fs.writeFileSync(SYNCED_FILE, JSON.stringify([...set], null, 2));
 }
 
 // ---------------------------------------------------------------------------
-// Puppeteer: Log into Substack and download subscriber CSV
+// Email parsing — extract subscriber email from Substack notification
 // ---------------------------------------------------------------------------
 
-async function downloadSubstackCSV() {
-  console.log('Launching browser...');
-  fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
+const EMAIL_RE = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
 
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
-
-  try {
-    const page = await browser.newPage();
-
-    // Set up download behavior
-    const client = await page.createCDPSession();
-    await client.send('Page.setDownloadBehavior', {
-      behavior: 'allow',
-      downloadPath: DOWNLOAD_DIR,
-    });
-
-    // -- Step 1: Sign in to Substack --
-    console.log('Navigating to Substack sign-in...');
-    await page.goto('https://substack.com/sign-in', { waitUntil: 'networkidle2' });
-
-    // Enter email
-    console.log('Entering credentials...');
-    await page.waitForSelector('input[type="email"], input[name="email"]', { timeout: 15000 });
-    await page.type('input[type="email"], input[name="email"]', SUBSTACK_EMAIL);
-
-    // Look for a "Sign in with password" or similar link/button, then click it
-    const passwordToggle = await page.$('a[href*="password"], button:has-text("password"), .login-option-password');
-    if (passwordToggle) {
-      await passwordToggle.click();
-      await sleep(1000);
+function extractSubscriberEmail(envelope, bodyText) {
+  // Strategy 1: Reply-To header — Substack puts the subscriber's email here
+  if (envelope.replyTo && envelope.replyTo.length > 0) {
+    const replyTo = envelope.replyTo[0];
+    const addr = replyTo.address || '';
+    // Filter out Substack's own addresses
+    if (addr && !addr.includes('substack.com') && !addr.includes('noreply')) {
+      return addr.toLowerCase();
     }
-
-    // Some flows show a "Continue" button before password field
-    const continueBtn = await page.$('button[type="submit"], button:has-text("Continue")');
-    if (continueBtn) {
-      await continueBtn.click();
-      await sleep(2000);
-    }
-
-    // Enter password
-    await page.waitForSelector('input[type="password"]', { timeout: 15000 });
-    await page.type('input[type="password"]', SUBSTACK_PASSWORD);
-
-    // Submit sign-in
-    const signInBtn = await page.waitForSelector('button[type="submit"]', { timeout: 5000 });
-    await signInBtn.click();
-
-    // Wait for navigation after login
-    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }).catch(() => {});
-    console.log('Signed in successfully.');
-
-    // -- Step 2: Navigate to the subscriber export page --
-    const dashboardUrl = `https://${SUBSTACK_PUBLICATION}.substack.com/publish/subscribers`;
-    console.log(`Navigating to subscriber dashboard: ${dashboardUrl}`);
-    await page.goto(dashboardUrl, { waitUntil: 'networkidle2', timeout: 30000 });
-
-    // -- Step 3: Trigger CSV export --
-    // Look for the three-dot menu or export button
-    console.log('Looking for export option...');
-
-    // Try clicking the overflow/actions menu (three dots)
-    const moreMenu = await page.$('[aria-label="More"], button.menu-button, .ellipsis-menu, [data-testid="more-menu"]');
-    if (moreMenu) {
-      await moreMenu.click();
-      await sleep(1000);
-    }
-
-    // Click "Export" option
-    const exportOption = await page.evaluateHandle(() => {
-      const items = document.querySelectorAll('button, a, [role="menuitem"]');
-      for (const item of items) {
-        if (item.textContent.toLowerCase().includes('export')) return item;
-      }
-      return null;
-    });
-
-    if (exportOption && exportOption.asElement()) {
-      await exportOption.asElement().click();
-      console.log('Clicked export option.');
-    } else {
-      // Fallback: try direct URL-based CSV download if available
-      console.log('Export button not found, trying direct download approach...');
-      const cookies = await page.cookies();
-      await downloadCSVViaFetch(cookies);
-      await browser.close();
-      return findLatestCSV();
-    }
-
-    // Wait for download to complete
-    console.log('Waiting for CSV download...');
-    await sleep(5000);
-
-    // If there's a confirmation dialog, click through it
-    const downloadBtn = await page.evaluateHandle(() => {
-      const buttons = document.querySelectorAll('button, a');
-      for (const b of buttons) {
-        const text = b.textContent.toLowerCase();
-        if (text.includes('download') || text.includes('all columns')) return b;
-      }
-      return null;
-    });
-
-    if (downloadBtn && downloadBtn.asElement()) {
-      await downloadBtn.asElement().click();
-      console.log('Clicked download button.');
-      await sleep(8000);
-    }
-
-    await browser.close();
-    console.log('Browser closed.');
-
-    return findLatestCSV();
-  } catch (err) {
-    await browser.close();
-    throw err;
   }
+
+  // Strategy 2: Parse the email body for an email address
+  if (bodyText) {
+    // Strip out common Substack/system addresses, find the subscriber's email
+    const matches = bodyText.match(EMAIL_RE) || [];
+    for (const match of matches) {
+      const lower = match.toLowerCase();
+      if (
+        !lower.includes('substack.com') &&
+        !lower.includes('noreply') &&
+        !lower.includes('no-reply') &&
+        !lower.includes('unsubscribe') &&
+        lower !== (IMAP_USER || '').toLowerCase()
+      ) {
+        return lower;
+      }
+    }
+  }
+
+  return null;
 }
 
-async function downloadCSVViaFetch(cookies) {
-  // Attempt to use the Substack API endpoint directly with session cookies
-  const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
-  const url = `https://${SUBSTACK_PUBLICATION}.substack.com/api/v1/subscriber_csv`;
-
-  const res = await fetch(url, {
-    headers: { Cookie: cookieHeader },
-  });
-
-  if (!res.ok) {
-    throw new Error(`Direct CSV download failed: HTTP ${res.status}`);
-  }
-
-  const csv = await res.text();
-  const filePath = path.join(DOWNLOAD_DIR, `subscribers_${Date.now()}.csv`);
-  fs.writeFileSync(filePath, csv);
-  console.log(`Downloaded CSV via direct fetch: ${filePath}`);
-}
-
-function findLatestCSV() {
-  const files = fs.readdirSync(DOWNLOAD_DIR)
-    .filter(f => f.endsWith('.csv'))
-    .map(f => ({
-      name: f,
-      path: path.join(DOWNLOAD_DIR, f),
-      mtime: fs.statSync(path.join(DOWNLOAD_DIR, f)).mtimeMs,
-    }))
-    .sort((a, b) => b.mtime - a.mtime);
-
-  if (files.length === 0) {
-    throw new Error('No CSV file found in download directory after export.');
-  }
-
-  console.log(`Using CSV: ${files[0].name}`);
-  return files[0].path;
+function isSubstackNotification(envelope) {
+  const subject = envelope.subject || '';
+  return SUBSTACK_SUBJECT_PATTERNS.some(re => re.test(subject));
 }
 
 // ---------------------------------------------------------------------------
 // Beehiiv API
 // ---------------------------------------------------------------------------
 
-async function createSubscription(email, sendWelcome = false) {
+async function addToBeehiiv(email, sendWelcome = false) {
   const url = `${BEEHIIV_API_BASE}/publications/${BEEHIIV_PUBLICATION_ID}/subscriptions`;
 
   const res = await fetch(url, {
@@ -322,124 +158,231 @@ function sleep(ms) {
 }
 
 // ---------------------------------------------------------------------------
-// Sync logic
+// Process a single message
 // ---------------------------------------------------------------------------
 
-async function syncToBeehiiv(csvPath, { dryRun, sendWelcome }) {
-  const allEmails = readSubscribersFromCSV(csvPath);
-  console.log(`\nFound ${allEmails.length} subscriber(s) in CSV.`);
+async function processMessage(client, seq, { dryRun, sendWelcome, synced }) {
+  // Fetch envelope (headers) and body text
+  const msg = await client.fetchOne(seq, {
+    envelope: true,
+    source: true,
+  });
 
-  const synced = loadSyncedEmails();
-  const newEmails = allEmails.filter(e => !synced.has(e));
-  console.log(`Already synced: ${synced.size}. New to sync: ${newEmails.length}.\n`);
+  if (!msg || !msg.envelope) return null;
+  if (!isSubstackNotification(msg.envelope)) return null;
 
-  if (newEmails.length === 0) {
-    console.log('Nothing new to sync.');
-    return;
+  // Decode body text for email extraction
+  const bodyText = msg.source ? msg.source.toString('utf-8') : '';
+  const subscriberEmail = extractSubscriberEmail(msg.envelope, bodyText);
+
+  if (!subscriberEmail) {
+    console.log(`  ? Could not extract subscriber email from: "${msg.envelope.subject}"`);
+    return null;
   }
+
+  if (synced.has(subscriberEmail)) return null; // already handled
 
   if (dryRun) {
-    console.log('Dry run — new subscribers that would be synced:');
-    newEmails.forEach(e => console.log(`  ${e}`));
-    console.log(`\nTotal: ${newEmails.length}`);
+    console.log(`  ~ ${subscriberEmail} (would sync)`);
+    return subscriberEmail;
+  }
+
+  // Push to Beehiiv
+  try {
+    const result = await addToBeehiiv(subscriberEmail, sendWelcome);
+    if (result.ok) {
+      console.log(`  + ${subscriberEmail}`);
+    } else if (result.status === 409) {
+      console.log(`  = ${subscriberEmail} (already in Beehiiv)`);
+    } else {
+      console.error(`  ! ${subscriberEmail} — HTTP ${result.status}: ${JSON.stringify(result.data)}`);
+      return null;
+    }
+    synced.add(subscriberEmail);
+    saveSynced(synced);
+    await sleep(DELAY_MS);
+    return subscriberEmail;
+  } catch (err) {
+    console.error(`  ! ${subscriberEmail} — ${err.message}`);
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Scan mode: process all existing Substack notification emails
+// ---------------------------------------------------------------------------
+
+async function scanExisting(client, flags) {
+  const synced = loadSynced();
+  console.log(`Previously synced: ${synced.size} subscriber(s)`);
+
+  // Search for emails with Substack notification subjects
+  const searchResults = await client.search({
+    or: [
+      { subject: 'new free subscriber' },
+      { subject: 'new paid subscriber' },
+      { subject: 'new subscriber to' },
+    ],
+  });
+
+  if (searchResults.length === 0) {
+    console.log('No Substack notification emails found in this mailbox.');
     return;
   }
 
-  let created = 0, skipped = 0, failed = 0;
+  console.log(`Found ${searchResults.length} Substack notification email(s). Processing...\n`);
 
-  for (let i = 0; i < newEmails.length; i++) {
-    const email = newEmails[i];
-    const progress = `[${i + 1}/${newEmails.length}]`;
-
-    try {
-      const result = await createSubscription(email, sendWelcome);
-      if (result.ok) {
-        console.log(`${progress} + ${email}`);
-        created++;
-        synced.add(email);
-      } else if (result.status === 409) {
-        console.log(`${progress} = ${email} (already in Beehiiv)`);
-        skipped++;
-        synced.add(email);
-      } else {
-        console.error(`${progress} ! ${email} — HTTP ${result.status}: ${JSON.stringify(result.data)}`);
-        failed++;
-      }
-    } catch (err) {
-      console.error(`${progress} ! ${email} — ${err.message}`);
-      failed++;
-    }
-
-    if (i < newEmails.length - 1) await sleep(DELAY_MS);
+  let processed = 0;
+  for (const seq of searchResults) {
+    const result = await processMessage(client, seq, { ...flags, synced });
+    if (result) processed++;
   }
 
-  saveSyncedEmails(synced);
+  console.log(`\nDone. ${processed} new subscriber(s) ${flags.dryRun ? 'found' : 'synced'}.`);
+}
 
-  console.log('\n--- Summary ---');
-  console.log(`Created:  ${created}`);
-  console.log(`Skipped:  ${skipped} (already in Beehiiv)`);
-  console.log(`Failed:   ${failed}`);
-  console.log(`Total new: ${newEmails.length}`);
+// ---------------------------------------------------------------------------
+// Watch mode: real-time monitoring via IMAP IDLE
+// ---------------------------------------------------------------------------
 
-  if (failed > 0) process.exitCode = 1;
+async function watchMode(flags) {
+  const synced = loadSynced();
+  console.log(`Previously synced: ${synced.size} subscriber(s)`);
+  console.log('Watching for new Substack notifications... (Ctrl+C to stop)\n');
+
+  const client = createClient();
+
+  // Reconnect logic
+  const connect = async () => {
+    await client.connect();
+    const mailbox = await client.mailboxOpen(IMAP_MAILBOX);
+    console.log(`Connected. Mailbox "${mailbox.path}" has ${mailbox.exists} message(s).`);
+    return mailbox;
+  };
+
+  client.on('exists', async (data) => {
+    console.log(`\n[${new Date().toISOString()}] New email detected in ${data.path}`);
+
+    try {
+      // Fetch the latest message(s)
+      const status = await client.status(IMAP_MAILBOX, { messages: true });
+      const latestSeq = status.messages;
+
+      if (latestSeq > 0) {
+        await processMessage(client, latestSeq, { ...flags, synced });
+      }
+    } catch (err) {
+      console.error('Error processing new email:', err.message);
+    }
+  });
+
+  client.on('close', async () => {
+    console.log('\nConnection closed. Reconnecting in 10s...');
+    await sleep(10000);
+    try {
+      await connect();
+    } catch (err) {
+      console.error('Reconnect failed:', err.message);
+      process.exit(1);
+    }
+  });
+
+  client.on('error', (err) => {
+    console.error('IMAP error:', err.message);
+  });
+
+  await connect();
+
+  // Keep process alive
+  process.on('SIGINT', async () => {
+    console.log('\nShutting down...');
+    await client.logout();
+    process.exit(0);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// IMAP client factory
+// ---------------------------------------------------------------------------
+
+function createClient() {
+  return new ImapFlow({
+    host: IMAP_HOST,
+    port: IMAP_PORT,
+    secure: IMAP_PORT === 993,
+    auth: {
+      user: IMAP_USER,
+      pass: IMAP_PASS,
+    },
+    logger: false, // suppress verbose IMAP logs
+  });
 }
 
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
-async function runOnce(flags) {
-  const csvPath = await downloadSubstackCSV();
-  await syncToBeehiiv(csvPath, flags);
-}
-
 async function main() {
   const args = process.argv.slice(2);
 
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`
-Automated Substack-to-Beehiiv Sync
-====================================
+Automated Substack-to-Beehiiv Sync (Email-based)
+==================================================
 
-Fully automated — uses Puppeteer to log into Substack, download your
-subscriber list, and push new subscribers to Beehiiv. No manual export needed.
+Monitors your email inbox for Substack's "new subscriber" notifications
+and automatically adds each subscriber to Beehiiv. No scraping needed —
+just reads your own email via IMAP.
 
 Usage:
   node substack-to-beehiiv-auto.js [options]
 
-Options:
-  --dry-run             Download CSV from Substack but don't push to Beehiiv
-  --send-welcome        Send Beehiiv welcome email to new subscribers
-  --cron <minutes>      Repeat the sync every N minutes (e.g. --cron 60)
-  --help, -h            Show this help message
+Modes:
+  (default)            Watch mode — stays connected via IMAP IDLE,
+                       syncs new subscribers in real-time as they arrive
+  --scan               Scan mode — process all existing notification emails
+                       once, then exit
+  --dry-run            Show what would be synced without calling Beehiiv API
+  --send-welcome       Send Beehiiv welcome email to new subscribers
 
 Required environment variables (set in .env):
-  SUBSTACK_EMAIL            Your Substack login email
-  SUBSTACK_PASSWORD         Your Substack password
-  SUBSTACK_PUBLICATION      Your Substack subdomain (e.g. "matt" for matt.substack.com)
-  BEEHIIV_API_KEY           Your Beehiiv API key
-  BEEHIIV_PUBLICATION_ID    Your Beehiiv publication ID (e.g. pub_xxxxx)
+  IMAP_HOST              IMAP server (e.g. imap.gmail.com)
+  IMAP_USER              Your email address
+  IMAP_PASS              Your email password or app password
+  BEEHIIV_API_KEY        Your Beehiiv API key
+  BEEHIIV_PUBLICATION_ID Your Beehiiv publication ID
 
 Optional:
-  SYNC_DELAY_MS             Delay between Beehiiv API calls in ms (default: 300)
+  IMAP_PORT              IMAP port (default: 993)
+  IMAP_MAILBOX           Mailbox to monitor (default: INBOX)
+  SYNC_DELAY_MS          Delay between Beehiiv API calls in ms (default: 300)
+
+Gmail setup:
+  1. Enable IMAP in Gmail Settings > Forwarding and POP/IMAP
+  2. Create an App Password: Google Account > Security > App passwords
+  3. Use the app password as IMAP_PASS (not your regular password)
+  4. Optionally create a Gmail filter to label Substack emails,
+     then set IMAP_MAILBOX to that label name
 
 How it works:
-  1. Opens a headless browser, signs into Substack with your credentials
-  2. Navigates to your subscriber dashboard and triggers a CSV export
-  3. Parses the CSV and compares against previously synced emails
-  4. Pushes only NEW subscribers to Beehiiv via their API
-  5. Saves sync state to .synced-emails.json to avoid duplicates on next run
+  1. Connects to your email via IMAP
+  2. Finds emails with subjects like "New free subscriber on Substack"
+  3. Extracts the subscriber email from Reply-To header or email body
+  4. Pushes new subscribers to Beehiiv via their API
+  5. Tracks synced emails in .synced-emails.json to avoid duplicates
 `);
     process.exit(0);
   }
 
   // Validate config
   const missing = [];
-  if (!SUBSTACK_EMAIL) missing.push('SUBSTACK_EMAIL');
-  if (!SUBSTACK_PASSWORD) missing.push('SUBSTACK_PASSWORD');
-  if (!SUBSTACK_PUBLICATION) missing.push('SUBSTACK_PUBLICATION');
+  if (!IMAP_HOST) missing.push('IMAP_HOST');
+  if (!IMAP_USER) missing.push('IMAP_USER');
+  if (!IMAP_PASS) missing.push('IMAP_PASS');
 
   const dryRun = args.includes('--dry-run');
+  const sendWelcome = args.includes('--send-welcome');
+  const scanMode = args.includes('--scan');
 
   if (!dryRun) {
     if (!BEEHIIV_API_KEY) missing.push('BEEHIIV_API_KEY');
@@ -448,31 +391,22 @@ How it works:
 
   if (missing.length > 0) {
     console.error(`Error: Missing required environment variables:\n  ${missing.join('\n  ')}`);
-    console.error('\nSet them in .env or export them in your shell.');
+    console.error('\nSet them in .env or export them. Run with --help for details.');
     process.exit(1);
   }
 
-  const sendWelcome = args.includes('--send-welcome');
-  const cronIdx = args.indexOf('--cron');
-  const cronMinutes = cronIdx !== -1 ? parseInt(args[cronIdx + 1], 10) : 0;
+  const flags = { dryRun, sendWelcome };
 
-  if (cronMinutes > 0) {
-    console.log(`Running in cron mode — syncing every ${cronMinutes} minutes.\n`);
-    while (true) {
-      const start = Date.now();
-      console.log(`\n=== Sync started at ${new Date().toISOString()} ===`);
-      try {
-        await runOnce({ dryRun, sendWelcome });
-      } catch (err) {
-        console.error('Sync failed:', err.message);
-      }
-      const elapsed = Date.now() - start;
-      const waitMs = Math.max(0, cronMinutes * 60000 - elapsed);
-      console.log(`Next sync in ${Math.round(waitMs / 60000)} minutes...`);
-      await sleep(waitMs);
-    }
+  if (scanMode) {
+    // One-shot: scan existing emails and exit
+    const client = createClient();
+    await client.connect();
+    await client.mailboxOpen(IMAP_MAILBOX);
+    await scanExisting(client, flags);
+    await client.logout();
   } else {
-    await runOnce({ dryRun, sendWelcome });
+    // Watch mode: stay connected, process in real-time
+    await watchMode(flags);
   }
 }
 
