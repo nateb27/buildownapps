@@ -3,765 +3,601 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bunny Run Racket Club</title>
+  <title>LinkedIn Prospecting Agent</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --primary: #2d8a3e;
-      --primary-dark: #1a5f2a;
-      --primary-light: #e8f5e9;
-      --primary-lighter: #c8e6c9;
+      --primary: #0a66c2;
+      --primary-dark: #004182;
+      --primary-light: #e8f0fe;
+      --bg: #f3f2ef;
+      --card: #ffffff;
+      --text: #191919;
+      --text-secondary: #666666;
+      --border: #e0e0e0;
+      --success: #057642;
+      --warning: #b24020;
+      --danger: #cc1016;
+      --hot: #cc1016;
+      --warm: #e67e22;
+      --cold: #2980b9;
+      --sidebar-w: 240px;
     }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      color: #333;
-      transition: background 0.3s;
     }
-
-    body.tennis-theme {
-      --primary: #1976d2;
-      --primary-dark: #0d47a1;
-      --primary-light: #e3f2fd;
-      --primary-lighter: #bbdefb;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    /* Login screen */
-    .login-screen {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .login-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      padding: 40px;
-      width: 100%;
-      max-width: 360px;
-      text-align: center;
-    }
-
-    .login-card h1 {
-      color: var(--primary);
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-    }
-
-    .login-card p {
-      color: #666;
-      margin-bottom: 24px;
-      font-size: 14px;
-    }
-
-    .login-card input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e9ecef;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-
-    .login-card input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .login-card button {
-      width: 100%;
-      padding: 12px;
-      background: var(--primary);
+    /* Layout */
+    .app { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: var(--sidebar-w);
+      background: #1b1f23;
       color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .login-card button:hover {
-      background: var(--primary-dark);
-    }
-
-    .login-error {
-      color: #dc3545;
-      font-size: 14px;
-      margin-top: 12px;
-      display: none;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    header {
-      text-align: center;
-      padding: 20px 0 30px;
-      color: white;
-    }
-
-    header h1 {
-      font-size: 2rem;
-      margin-bottom: 5px;
-    }
-
-    header p {
-      opacity: 0.9;
-      font-size: 1rem;
-    }
-
-    .card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
-    }
-
-    .week-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .week-nav button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-
-    .week-nav button:hover {
-      background: var(--primary-dark);
-    }
-
-    .week-nav .current-week {
-      font-weight: 600;
-      color: #333;
-    }
-
-    .view-toggle {
-      display: flex;
-      gap: 4px;
-      background: #e9ecef;
-      padding: 4px;
-      border-radius: 8px;
-    }
-
-    .view-toggle button {
-      background: transparent;
-      color: #666;
-      padding: 6px 12px;
-      font-size: 13px;
-    }
-
-    .view-toggle button.active {
-      background: white;
-      color: var(--primary);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .view-toggle button:hover:not(.active) {
-      background: rgba(255,255,255,0.5);
-    }
-
-    .court-tabs {
-      display: flex;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .court-tab {
-      flex: 1;
-      padding: 14px 20px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      color: #666;
-      transition: all 0.2s;
-      border-bottom: 3px solid transparent;
-    }
-
-    .court-tab:hover {
-      background: #f0f0f0;
-    }
-
-    .court-tab.active {
-      color: #2d8a3e;
-      border-bottom-color: #2d8a3e;
-      background: white;
-    }
-
-    .court-tab.padel.active {
-      color: #2d8a3e;
-      border-bottom-color: #2d8a3e;
-    }
-
-    .court-tab.tennis.active {
-      color: #1976d2;
-      border-bottom-color: #1976d2;
-    }
-
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 1px;
-      background: #e9ecef;
-    }
-
-    .day-column {
-      background: white;
-      min-height: 300px;
-    }
-
-    .day-header {
-      padding: 12px 8px;
-      text-align: center;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-      position: sticky;
-      top: 0;
-    }
-
-    .day-header .day-name {
-      font-size: 12px;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .day-header .day-number {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .day-header.today {
-      background: var(--primary);
-    }
-
-    .day-header.today .day-name,
-    .day-header.today .day-number {
-      color: white;
-    }
-
-    .day-bookings {
-      padding: 8px;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      z-index: 100;
     }
+    .sidebar-brand {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar-brand h1 { font-size: 16px; font-weight: 700; color: #fff; }
+    .sidebar-brand span { font-size: 12px; color: rgba(255,255,255,0.5); display: block; margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 12px 0; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px; color: rgba(255,255,255,0.65);
+      cursor: pointer; font-size: 14px; transition: all 0.15s;
+      border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,0.12); color: #fff; border-right: 3px solid var(--primary); }
+    .nav-item .icon { width: 18px; text-align: center; font-size: 16px; }
+    .nav-section { padding: 8px 20px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.3); margin-top: 8px; }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .ai-status { font-size: 12px; display: flex; align-items: center; gap: 6px; }
+    .ai-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .ai-dot.on { background: #057642; }
+    .ai-dot.off { background: #cc1016; }
+    .main { flex: 1; margin-left: var(--sidebar-w); }
+    .topbar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar h2 { font-size: 20px; font-weight: 700; }
+    .topbar-actions { display: flex; gap: 8px; }
+    .content { padding: 24px 32px; }
 
-    .booking {
-      background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-lighter) 100%);
-      border-left: 3px solid var(--primary);
-      padding: 8px 10px;
-      border-radius: 6px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s, background 0.3s, border-color 0.3s;
+    /* Buttons */
+    .btn {
+      padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; border: none; display: inline-flex;
+      align-items: center; gap: 6px;
     }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: #f5f5f5; border-color: #999; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #a00d12; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+    .btn-ghost { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 13px; font-weight: 600; padding: 4px 8px; }
+    .btn-ghost:hover { background: var(--primary-light); border-radius: 4px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .booking:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* Cards */
+    .card {
+      background: var(--card); border-radius: 8px;
+      border: 1px solid var(--border); overflow: hidden;
     }
+    .card-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .card-header h3 { font-size: 16px; font-weight: 700; }
+    .card-body { padding: 20px; }
 
-    .booking .time {
-      font-weight: 600;
-      color: var(--primary-dark);
-      font-size: 12px;
+    /* Stats grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 20px; display: flex; flex-direction: column;
     }
+    .stat-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .stat-value { font-size: 32px; font-weight: 700; }
+    .stat-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
 
-    .booking .name {
-      color: #333;
-      margin-top: 2px;
+    /* Pipeline funnel */
+    .pipeline { display: flex; gap: 12px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 8px; }
+    .pipeline-stage {
+      flex: 1; min-width: 140px; background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px; text-align: center;
     }
+    .pipeline-stage .stage-name { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 4px; }
+    .pipeline-stage .stage-count { font-size: 28px; font-weight: 700; }
+    .pipeline-stage.new { border-top: 3px solid #2980b9; }
+    .pipeline-stage.contacted { border-top: 3px solid #e67e22; }
+    .pipeline-stage.replied { border-top: 3px solid #27ae60; }
+    .pipeline-stage.meeting { border-top: 3px solid #8e44ad; }
+    .pipeline-stage.converted { border-top: 3px solid #057642; }
+    .pipeline-stage.lost { border-top: 3px solid #999; }
 
-    .add-booking-btn {
-      width: 100%;
-      padding: 10px;
-      margin-top: 4px;
-      background: transparent;
-      border: 2px dashed #ccc;
-      border-radius: 6px;
-      color: #999;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
+    /* Tables */
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; padding: 10px 16px; background: #f8f9fa; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; }
+    tr:hover td { background: #fafafa; }
+    .table-actions { display: flex; gap: 4px; }
 
-    .add-booking-btn:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: var(--primary-light);
+    /* Status badges */
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 12px;
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
     }
+    .badge-new { background: #e3f2fd; color: #1565c0; }
+    .badge-contacted { background: #fff3e0; color: #e65100; }
+    .badge-replied { background: #e8f5e9; color: #2e7d32; }
+    .badge-meeting { background: #f3e5f5; color: #6a1b9a; }
+    .badge-converted { background: #e0f2f1; color: #00695c; }
+    .badge-lost { background: #f5f5f5; color: #616161; }
+
+    /* Score indicator */
+    .score-bar { display: flex; align-items: center; gap: 8px; }
+    .score-fill { height: 6px; border-radius: 3px; background: #e0e0e0; width: 60px; position: relative; overflow: hidden; }
+    .score-fill-inner { height: 100%; border-radius: 3px; transition: width 0.3s; }
+    .score-val { font-size: 13px; font-weight: 600; min-width: 28px; }
 
     /* Modal */
     .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 20px;
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); justify-content: center; align-items: flex-start;
+      z-index: 1000; padding: 60px 20px; overflow-y: auto;
     }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--card); border-radius: 12px; width: 100%; max-width: 560px; animation: modalIn 0.2s ease-out; }
+    .modal.wide { max-width: 720px; }
+    @keyframes modalIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { font-size: 18px; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #999; padding: 0 4px; }
+    .modal-close:hover { color: #333; }
+    .modal-body { padding: 24px; max-height: 60vh; overflow-y: auto; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
 
-    .modal-overlay.active {
-      display: flex;
+    /* Forms */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 8px 12px; border: 1px solid var(--border);
+      border-radius: 6px; font-size: 14px; font-family: inherit;
     }
-
-    .modal {
-      background: white;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 400px;
-      overflow: hidden;
-      animation: modalIn 0.2s ease-out;
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(10,102,194,0.15);
     }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-help { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+    .tag-input { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; min-height: 38px; align-items: center; cursor: text; }
+    .tag { background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 12px; font-size: 12px; display: flex; align-items: center; gap: 4px; }
+    .tag button { background: none; border: none; cursor: pointer; color: var(--primary); font-size: 14px; }
 
-    @keyframes modalIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
+    /* AI panel */
+    .ai-panel { background: linear-gradient(135deg, #0a66c2 0%, #004182 100%); color: white; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+    .ai-panel h4 { font-size: 14px; margin-bottom: 8px; }
+    .ai-panel p { font-size: 13px; opacity: 0.9; margin-bottom: 12px; }
+    .ai-result { background: var(--card); border-radius: 8px; padding: 16px; color: var(--text); margin-top: 12px; }
+    .ai-result h5 { font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--primary); }
+    .ai-result ul { padding-left: 16px; font-size: 13px; }
+    .ai-result li { margin-bottom: 4px; }
 
-    .modal-header {
-      padding: 20px;
-      background: var(--primary);
-      color: white;
-      transition: background 0.3s;
-    }
+    /* Message preview */
+    .msg-preview { background: #f8f9fa; border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; border-left: 3px solid var(--primary); white-space: pre-wrap; }
+    .msg-type-tabs { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+    .msg-type-tab { padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: white; color: var(--text-secondary); }
+    .msg-type-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    .modal-header h2 {
-      font-size: 1.25rem;
-    }
+    /* Loading spinner */
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
+    .spinner.dark { border-color: rgba(0,0,0,0.15); border-top-color: var(--primary); }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .modal-body {
-      padding: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 500;
-      color: #333;
-      font-size: 14px;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 2px solid #e9ecef;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .time-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .modal-footer {
-      padding: 15px 20px;
-      background: #f8f9fa;
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-      transition: background 0.2s;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .btn-secondary {
-      background: #e9ecef;
-      color: #333;
-    }
-
-    .btn-secondary:hover {
-      background: #dee2e6;
-    }
-
-    .btn-danger {
-      background: #dc3545;
-      color: white;
-    }
-
-    .btn-danger:hover {
-      background: #c82333;
-    }
-
-    /* Toast notifications */
+    /* Toast */
     .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: #333;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 14px;
-      opacity: 0;
-      transition: all 0.3s;
-      z-index: 2000;
+      position: fixed; bottom: 24px; right: 24px;
+      background: #333; color: white; padding: 12px 20px;
+      border-radius: 8px; font-size: 14px; z-index: 2000;
+      transform: translateY(100px); opacity: 0; transition: all 0.3s;
     }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
 
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
+    /* Empty state */
+    .empty-state { text-align: center; padding: 48px 20px; color: var(--text-secondary); }
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; max-width: 400px; margin: 0 auto 16px; }
 
-    .toast.error {
-      background: #dc3545;
-    }
+    /* Prospect detail sidebar */
+    .detail-panel { position: fixed; top: 0; right: -480px; width: 480px; height: 100vh; background: var(--card); border-left: 1px solid var(--border); z-index: 200; transition: right 0.3s; overflow-y: auto; }
+    .detail-panel.open { right: 0; }
+    .detail-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 150; }
+    .detail-overlay.open { display: block; }
+    .detail-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; }
+    .detail-body { padding: 24px; }
+    .detail-section { margin-bottom: 24px; }
+    .detail-section h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 8px; }
+    .detail-field { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+    .detail-field .label { color: var(--text-secondary); }
+    .detail-field .value { font-weight: 500; }
 
-    .toast.success {
-      background: #28a745;
+    /* CSV Import area */
+    .import-drop {
+      border: 2px dashed var(--border); border-radius: 8px; padding: 32px;
+      text-align: center; cursor: pointer; transition: all 0.15s;
     }
+    .import-drop:hover, .import-drop.dragover { border-color: var(--primary); background: var(--primary-light); }
+    .import-drop p { font-size: 14px; color: var(--text-secondary); }
 
     /* Responsive */
     @media (max-width: 768px) {
-      .container {
-        padding: 10px;
-      }
-
-      header h1 {
-        font-size: 1.5rem;
-      }
-
-      .calendar {
-        display: block;
-      }
-
-      .day-column {
-        min-height: auto;
-        border-bottom: 1px solid #e9ecef;
-      }
-
-      .day-column:last-child {
-        border-bottom: none;
-      }
-
-      .day-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 15px;
-      }
-
-      .day-header .day-name {
-        font-size: 14px;
-      }
-
-      .day-header .day-number {
-        font-size: 1.25rem;
-      }
-
-      .day-bookings {
-        padding: 10px 15px;
-      }
-
-      .day-bookings:empty::before {
-        content: 'No bookings';
-        color: #999;
-        font-size: 13px;
-      }
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .content { padding: 16px; }
+      .topbar { padding: 12px 16px; }
+      .form-row { grid-template-columns: 1fr; }
+      .pipeline { flex-wrap: wrap; }
+      .pipeline-stage { min-width: calc(50% - 6px); }
     }
 
-    /* Empty state */
-    .empty-day {
-      color: #ccc;
-      font-size: 12px;
-      text-align: center;
-      padding: 20px 0;
-    }
+    .hidden { display: none !important; }
 
-    /* Monthly view */
-    .calendar.month-view {
-      grid-template-columns: repeat(7, 1fr);
-      grid-template-rows: auto;
-    }
+    /* Page sections */
+    .page { display: none; }
+    .page.active { display: block; }
 
-    .month-day-header {
-      background: #f8f9fa;
-      padding: 8px;
-      text-align: center;
-      font-size: 12px;
-      font-weight: 600;
-      color: #666;
-      text-transform: uppercase;
-      border-bottom: 1px solid #e9ecef;
-    }
+    /* Sequence builder */
+    .sequence-step { display: flex; align-items: center; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; margin-bottom: 8px; }
+    .sequence-step .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .sequence-step .step-info { flex: 1; }
+    .sequence-step .step-type { font-weight: 600; font-size: 14px; }
+    .sequence-step .step-delay { font-size: 12px; color: var(--text-secondary); }
 
-    .month-day {
-      background: white;
-      min-height: 100px;
-      padding: 4px;
-      border-bottom: 1px solid #e9ecef;
-      border-right: 1px solid #e9ecef;
-    }
-
-    .month-day:nth-child(7n) {
-      border-right: none;
-    }
-
-    .month-day.other-month {
-      background: #fafafa;
-    }
-
-    .month-day.other-month .month-day-number {
-      color: #ccc;
-    }
-
-    .month-day-number {
-      font-size: 14px;
-      font-weight: 600;
-      color: #333;
-      padding: 4px 6px;
-      display: inline-block;
-    }
-
-    .month-day.today .month-day-number {
-      background: var(--primary);
-      color: white;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.3s;
-    }
-
-    .month-day .booking {
-      padding: 3px 6px;
-      font-size: 11px;
-      margin-bottom: 2px;
-    }
-
-    .month-day .booking .time {
-      font-size: 10px;
-    }
-
-    .month-day .booking .name {
-      font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .month-day .more-bookings {
-      font-size: 11px;
-      color: var(--primary);
-      padding: 2px 6px;
-      cursor: pointer;
-    }
-
-    .month-day .add-booking-btn {
-      padding: 4px;
-      font-size: 11px;
-      margin-top: 2px;
-    }
-
-    @media (max-width: 768px) {
-      .calendar.month-view {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-      }
-
-      .month-day {
-        min-height: 60px;
-        padding: 2px;
-      }
-
-      .month-day-number {
-        font-size: 12px;
-        padding: 2px 4px;
-      }
-
-      .month-day .booking {
-        display: none;
-      }
-
-      .month-day .booking-dot {
-        display: inline-block;
-        width: 6px;
-        height: 6px;
-        background: var(--primary);
-        border-radius: 50%;
-        margin: 1px;
-      }
-
-      .month-day .add-booking-btn {
-        display: none;
-      }
-
-      .view-toggle {
-        order: 3;
-        width: 100%;
-        justify-content: center;
-        margin-top: 10px;
-      }
-
-      .week-nav {
-        flex-wrap: wrap;
-      }
-    }
+    /* Recommendation badge */
+    .rec-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+    .rec-hot { background: #fde8e8; color: var(--hot); }
+    .rec-warm { background: #fef3e2; color: var(--warm); }
+    .rec-cold { background: #e8f0fe; color: var(--cold); }
+    .rec-none { background: #f5f5f5; color: #999; }
   </style>
 </head>
 <body>
-  <!-- Login Screen -->
-  <div class="login-screen" id="loginScreen">
-    <div class="login-card">
-      <h1>Bunny Run Racket Club</h1>
-      <p>Enter the password to access bookings</p>
-      <input type="password" id="passwordInput" placeholder="Password" onkeypress="if(event.key==='Enter')checkPassword()">
-      <button onclick="checkPassword()">Enter</button>
-      <div class="login-error" id="loginError">Incorrect password</div>
-    </div>
-  </div>
-
-  <!-- Main App -->
-  <div class="container hidden" id="mainApp">
-    <header>
-      <h1>Bunny Run Racket Club</h1>
-      <p>Book your court time</p>
-    </header>
-
-    <div class="card">
-      <div class="court-tabs">
-        <button class="court-tab padel active" id="padelTab" onclick="setCourt('padel')">Padel Court</button>
-        <button class="court-tab tennis" id="tennisTab" onclick="setCourt('tennis')">Tennis Court</button>
+  <div class="app">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-brand">
+        <h1>Prospecting Agent</h1>
+        <span>AI-Powered LinkedIn Outreach</span>
       </div>
-      <div class="week-nav">
-        <button onclick="previousPeriod()">&larr; Previous</button>
-        <span class="current-week" id="currentWeek"></span>
-        <button onclick="nextPeriod()">Next &rarr;</button>
-        <div class="view-toggle">
-          <button id="weekViewBtn" class="active" onclick="setView('week')">Week</button>
-          <button id="monthViewBtn" onclick="setView('month')">Month</button>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="dashboard"><span class="icon">&#9632;</span> Dashboard</button>
+        <button class="nav-item" data-page="prospects"><span class="icon">&#9679;</span> Prospects</button>
+        <button class="nav-item" data-page="campaigns"><span class="icon">&#9654;</span> Campaigns</button>
+        <div class="nav-section">Configure</div>
+        <button class="nav-item" data-page="icp"><span class="icon">&#9733;</span> Ideal Customer</button>
+        <button class="nav-item" data-page="templates"><span class="icon">&#9998;</span> Templates</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="ai-status">
+          <span class="ai-dot" id="aiDot"></span>
+          <span id="aiStatusText">Checking AI...</span>
         </div>
       </div>
-      <div class="calendar" id="calendar"></div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main">
+      <div class="topbar">
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="topbar-actions" id="topbarActions"></div>
+      </div>
+      <div class="content">
+
+        <!-- Dashboard Page -->
+        <div class="page active" id="page-dashboard">
+          <div class="stats-grid" id="statsGrid"></div>
+          <div class="pipeline" id="pipeline"></div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Recent Prospects</h3>
+              <button class="btn btn-sm btn-secondary" onclick="navigateTo('prospects')">View All</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Name</th><th>Title</th><th>Company</th><th>Score</th><th>Status</th></tr></thead>
+                <tbody id="recentProspects"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prospects Page -->
+        <div class="page" id="page-prospects">
+          <div class="card">
+            <div class="card-header">
+              <h3>All Prospects</h3>
+              <div style="display:flex;gap:8px;">
+                <select id="filterStatus" onchange="renderProspects()" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;">
+                  <option value="">All Statuses</option>
+                  <option value="new">New</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="replied">Replied</option>
+                  <option value="meeting_booked">Meeting Booked</option>
+                  <option value="converted">Converted</option>
+                  <option value="not_interested">Not Interested</option>
+                </select>
+                <input type="text" id="searchProspects" placeholder="Search..." oninput="renderProspects()" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;width:180px;">
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th><th>Title</th><th>Company</th><th>Industry</th><th>Score</th><th>Status</th><th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="prospectsTable"></tbody>
+              </table>
+            </div>
+            <div class="empty-state hidden" id="prospectsEmpty">
+              <div class="empty-icon">&#128100;</div>
+              <h3>No prospects yet</h3>
+              <p>Add prospects manually or import from a CSV file to get started.</p>
+              <button class="btn btn-primary" onclick="openAddProspect()">Add Prospect</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campaigns Page -->
+        <div class="page" id="page-campaigns">
+          <div id="campaignsList"></div>
+          <div class="empty-state hidden" id="campaignsEmpty">
+            <div class="empty-icon">&#128640;</div>
+            <h3>No campaigns yet</h3>
+            <p>Create a campaign to start reaching out to your prospects with automated sequences.</p>
+            <button class="btn btn-primary" onclick="openCreateCampaign()">Create Campaign</button>
+          </div>
+        </div>
+
+        <!-- ICP Page -->
+        <div class="page" id="page-icp">
+          <div class="card">
+            <div class="card-header">
+              <h3>Ideal Customer Profile</h3>
+              <button class="btn btn-sm btn-primary" onclick="saveICP()">Save Changes</button>
+            </div>
+            <div class="card-body">
+              <p style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;">
+                Define your ideal customer profile. The AI uses this to score prospects and tailor outreach messages.
+              </p>
+              <div class="form-group">
+                <label>Target Job Titles (comma-separated)</label>
+                <input type="text" id="icpTitles" placeholder="VP of Sales, Head of Growth, CEO">
+              </div>
+              <div class="form-group">
+                <label>Target Industries (comma-separated)</label>
+                <input type="text" id="icpIndustries" placeholder="SaaS, Technology, Professional Services">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Min Company Size</label>
+                  <input type="number" id="icpMinSize" placeholder="10">
+                </div>
+                <div class="form-group">
+                  <label>Max Company Size</label>
+                  <input type="number" id="icpMaxSize" placeholder="500">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Pain Points You Solve (one per line)</label>
+                <textarea id="icpPainPoints" rows="4" placeholder="Slow lead response times&#10;Manual prospecting is time-consuming"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Keywords (comma-separated)</label>
+                <input type="text" id="icpKeywords" placeholder="growth, sales, pipeline, revenue">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Templates Page -->
+        <div class="page" id="page-templates">
+          <div id="templatesList"></div>
+        </div>
+
+      </div>
     </div>
   </div>
 
-  <!-- Booking Modal -->
-  <div class="modal-overlay" id="bookingModal">
+  <!-- Prospect Detail Panel -->
+  <div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-header">
+      <div>
+        <h3 id="detailName"></h3>
+        <p style="font-size:14px;color:var(--text-secondary);" id="detailTitle"></p>
+      </div>
+      <button class="modal-close" onclick="closeDetail()">&times;</button>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+
+  <!-- Add/Edit Prospect Modal -->
+  <div class="modal-overlay" id="prospectModal">
     <div class="modal">
       <div class="modal-header">
-        <h2 id="modalTitle">New Booking</h2>
+        <h3 id="prospectModalTitle">Add Prospect</h3>
+        <button class="modal-close" onclick="closeProspectModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <form id="bookingForm">
-          <input type="hidden" id="bookingId">
-          <input type="hidden" id="bookingDate">
-
+        <input type="hidden" id="editProspectId">
+        <div class="form-row">
           <div class="form-group">
-            <label for="courtSelect">Court</label>
-            <select id="courtSelect" required>
-              <option value="padel">Padel Court</option>
-              <option value="tennis">Tennis Court</option>
-            </select>
+            <label>First Name *</label>
+            <input type="text" id="pFirstName" required>
           </div>
-
           <div class="form-group">
-            <label for="bookedBy">Your Name</label>
-            <input type="text" id="bookedBy" required placeholder="Who's booking?">
+            <label>Last Name *</label>
+            <input type="text" id="pLastName" required>
           </div>
-
-          <div class="time-row">
-            <div class="form-group">
-              <label for="startTime">Start Time</label>
-              <select id="startTime" required></select>
-            </div>
-            <div class="form-group">
-              <label for="endTime">End Time</label>
-              <select id="endTime" required></select>
-            </div>
-          </div>
-
+        </div>
+        <div class="form-row">
           <div class="form-group">
-            <label for="notes">Notes (optional)</label>
-            <textarea id="notes" rows="2" placeholder="Any details..."></textarea>
+            <label>Job Title *</label>
+            <input type="text" id="pTitle" placeholder="VP of Sales">
           </div>
-        </form>
+          <div class="form-group">
+            <label>Company *</label>
+            <input type="text" id="pCompany" placeholder="Acme Corp">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Industry</label>
+            <input type="text" id="pIndustry" placeholder="SaaS">
+          </div>
+          <div class="form-group">
+            <label>Company Size</label>
+            <input type="text" id="pCompanySize" placeholder="50-200">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>LinkedIn URL</label>
+          <input type="url" id="pLinkedinUrl" placeholder="https://linkedin.com/in/...">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="pEmail">
+          </div>
+          <div class="form-group">
+            <label>Location</label>
+            <input type="text" id="pLocation" placeholder="San Francisco, CA">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Bio / About</label>
+          <textarea id="pBio" rows="3" placeholder="Brief description from their LinkedIn profile..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="pNotes" rows="2" placeholder="Internal notes about this prospect..."></textarea>
+        </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteBooking()" style="display: none; margin-right: auto;">Delete</button>
-        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="saveBooking()">Save</button>
+        <button class="btn btn-secondary" onclick="closeProspectModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProspect()">Save Prospect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Modal -->
+  <div class="modal-overlay" id="importModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Import Prospects from CSV</h3>
+        <button class="modal-close" onclick="closeImportModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">
+          Upload a CSV file with columns: firstName, lastName, title, company, industry, companySize, linkedinUrl, email, location, bio, notes
+        </p>
+        <div class="import-drop" id="importDrop" onclick="document.getElementById('csvFile').click()">
+          <p>Click to select a CSV file or drag & drop</p>
+          <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleCSV(this)">
+        </div>
+        <div id="importPreview" class="hidden" style="margin-top:16px;">
+          <p style="font-size:14px;font-weight:600;" id="importCount"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeImportModal()">Cancel</button>
+        <button class="btn btn-primary" id="importBtn" onclick="doImport()" disabled>Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Campaign Modal -->
+  <div class="modal-overlay" id="campaignModal">
+    <div class="modal wide">
+      <div class="modal-header">
+        <h3 id="campaignModalTitle">Create Campaign</h3>
+        <button class="modal-close" onclick="closeCampaignModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Campaign Name</label>
+          <input type="text" id="cName" placeholder="Q1 SaaS Outreach">
+        </div>
+        <h4 style="font-size:14px;margin-bottom:8px;">Outreach Sequence</h4>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Define the steps in your outreach sequence. Messages are generated by AI for each prospect.</p>
+        <div id="sequenceBuilder">
+          <div class="sequence-step"><span class="step-num">1</span><div class="step-info"><div class="step-type">Connection Request</div><div class="step-delay">Day 0 - Send immediately</div></div></div>
+          <div class="sequence-step"><span class="step-num">2</span><div class="step-info"><div class="step-type">Follow-up #1</div><div class="step-delay">Day 3 - Value-first message</div></div></div>
+          <div class="sequence-step"><span class="step-num">3</span><div class="step-info"><div class="step-type">Follow-up #2</div><div class="step-delay">Day 5 - Social proof</div></div></div>
+          <div class="sequence-step"><span class="step-num">4</span><div class="step-info"><div class="step-type">Break-up Message</div><div class="step-delay">Day 7 - Polite close</div></div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeCampaignModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCampaign()">Create Campaign</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Message Generator Modal -->
+  <div class="modal-overlay" id="messageModal">
+    <div class="modal wide">
+      <div class="modal-header">
+        <h3>AI Message Generator</h3>
+        <button class="modal-close" onclick="closeMessageModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="ai-panel">
+          <h4>Generating personalized outreach for <span id="msgProspectName"></span></h4>
+          <p>Select a message type below. The AI will craft a personalized message based on the prospect's profile and your ICP.</p>
+        </div>
+        <div class="msg-type-tabs" id="msgTypeTabs">
+          <button class="msg-type-tab active" data-type="connection">Connection Request</button>
+          <button class="msg-type-tab" data-type="followup_1">Follow-up #1</button>
+          <button class="msg-type-tab" data-type="followup_2">Follow-up #2</button>
+          <button class="msg-type-tab" data-type="breakup">Break-up</button>
+          <button class="msg-type-tab" data-type="inmail">InMail</button>
+        </div>
+        <div class="form-group">
+          <label>Additional Context (optional)</label>
+          <input type="text" id="msgContext" placeholder="e.g., They recently posted about AI, we have a mutual connection...">
+        </div>
+        <button class="btn btn-primary" id="generateMsgBtn" onclick="generateMessage()">Generate Message</button>
+        <div id="msgResult" class="hidden" style="margin-top:16px;">
+          <div id="msgSubjectRow" class="hidden" style="margin-bottom:8px;">
+            <label style="font-size:13px;font-weight:600;color:var(--text-secondary);">Subject:</label>
+            <div id="msgSubject" style="font-size:14px;font-weight:600;margin-top:2px;"></div>
+          </div>
+          <div class="msg-preview" id="msgBody"></div>
+          <div style="margin-top:12px;display:flex;gap:8px;">
+            <button class="btn btn-sm btn-secondary" onclick="copyMessage()">Copy to Clipboard</button>
+            <button class="btn btn-sm btn-primary" onclick="generateMessage()">Regenerate</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -770,459 +606,698 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const API_URL = '/api/bookings';
-    let currentWeekStart = getMonday(new Date());
-    let currentMonth = new Date();
-    let currentView = 'week'; // 'week' or 'month'
-    let currentCourt = 'padel'; // 'padel' or 'tennis'
-    let bookings = [];
+    // -----------------------------------------------------------------------
+    // State
+    // -----------------------------------------------------------------------
+    let prospects = [];
+    let campaigns = [];
+    let icp = {};
+    let templates = [];
+    let aiConfigured = false;
+    let currentProspectForMessage = null;
+    let csvData = null;
 
-    // Password functions
-    async function checkPassword() {
-      const password = document.getElementById('passwordInput').value;
-      const errorEl = document.getElementById('loginError');
+    // -----------------------------------------------------------------------
+    // Navigation
+    // -----------------------------------------------------------------------
+    document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => navigateTo(btn.dataset.page));
+    });
 
+    function navigateTo(page) {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(`page-${page}`).classList.add('active');
+
+      const titles = { dashboard: 'Dashboard', prospects: 'Prospects', campaigns: 'Campaigns', icp: 'Ideal Customer Profile', templates: 'Message Templates' };
+      document.getElementById('pageTitle').textContent = titles[page] || page;
+
+      const actions = document.getElementById('topbarActions');
+      actions.innerHTML = '';
+
+      if (page === 'prospects') {
+        actions.innerHTML = `
+          <button class="btn btn-secondary btn-sm" onclick="openImportModal()">Import CSV</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddProspect()">+ Add Prospect</button>
+          <button class="btn btn-sm btn-success" onclick="bulkScore()" ${!aiConfigured ? 'disabled title="AI not configured"' : ''}>AI Score All</button>
+        `;
+      } else if (page === 'campaigns') {
+        actions.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openCreateCampaign()">+ New Campaign</button>`;
+      }
+
+      if (page === 'dashboard') loadDashboard();
+      else if (page === 'prospects') renderProspects();
+      else if (page === 'campaigns') renderCampaigns();
+      else if (page === 'icp') loadICP();
+      else if (page === 'templates') renderTemplates();
+    }
+
+    // -----------------------------------------------------------------------
+    // API helpers
+    // -----------------------------------------------------------------------
+    async function api(path, options = {}) {
+      const res = await fetch(`/api${path}`, {
+        headers: { 'Content-Type': 'application/json' },
+        ...options,
+        body: options.body ? JSON.stringify(options.body) : undefined,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Request failed' }));
+        throw new Error(err.error || 'Request failed');
+      }
+      return res.json();
+    }
+
+    // -----------------------------------------------------------------------
+    // Dashboard
+    // -----------------------------------------------------------------------
+    async function loadDashboard() {
       try {
-        const response = await fetch('/api/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password })
-        });
+        const [stats, prList] = await Promise.all([api('/stats'), api('/prospects')]);
+        prospects = prList;
 
-        if (response.ok) {
-          localStorage.setItem('bunny_auth', password);
-          showMainApp();
-          errorEl.style.display = 'none';
+        document.getElementById('statsGrid').innerHTML = `
+          <div class="stat-card"><div class="stat-label">Total Prospects</div><div class="stat-value">${stats.totalProspects}</div></div>
+          <div class="stat-card"><div class="stat-label">Avg ICP Score</div><div class="stat-value">${stats.avgScore}%</div></div>
+          <div class="stat-card"><div class="stat-label">Reply Rate</div><div class="stat-value">${stats.replyRate}%</div></div>
+          <div class="stat-card"><div class="stat-label">Conversion Rate</div><div class="stat-value">${stats.conversionRate}%</div></div>
+          <div class="stat-card"><div class="stat-label">Active Campaigns</div><div class="stat-value">${stats.activeCampaigns}</div></div>
+        `;
+
+        const sc = stats.statusCounts;
+        document.getElementById('pipeline').innerHTML = `
+          <div class="pipeline-stage new"><div class="stage-name">New</div><div class="stage-count">${sc.new}</div></div>
+          <div class="pipeline-stage contacted"><div class="stage-name">Contacted</div><div class="stage-count">${sc.contacted}</div></div>
+          <div class="pipeline-stage replied"><div class="stage-name">Replied</div><div class="stage-count">${sc.replied}</div></div>
+          <div class="pipeline-stage meeting"><div class="stage-name">Meeting Booked</div><div class="stage-count">${sc.meeting_booked}</div></div>
+          <div class="pipeline-stage converted"><div class="stage-name">Converted</div><div class="stage-count">${sc.converted}</div></div>
+          <div class="pipeline-stage lost"><div class="stage-name">Not Interested</div><div class="stage-count">${sc.not_interested}</div></div>
+        `;
+
+        const recent = prospects.slice(-5).reverse();
+        document.getElementById('recentProspects').innerHTML = recent.length ? recent.map(p => `
+          <tr style="cursor:pointer" onclick="openDetail('${p.id}')">
+            <td><strong>${esc(p.firstName)} ${esc(p.lastName)}</strong></td>
+            <td>${esc(p.title)}</td>
+            <td>${esc(p.company)}</td>
+            <td>${scoreHTML(p.score)}</td>
+            <td>${statusBadge(p.status)}</td>
+          </tr>
+        `).join('') : '<tr><td colspan="5" style="text-align:center;color:#999;padding:24px;">No prospects yet. Add some to get started.</td></tr>';
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // Prospects
+    // -----------------------------------------------------------------------
+    async function loadProspects() {
+      prospects = await api('/prospects');
+    }
+
+    function renderProspects() {
+      const filter = document.getElementById('filterStatus').value;
+      const search = document.getElementById('searchProspects').value.toLowerCase();
+      let filtered = prospects;
+      if (filter) filtered = filtered.filter(p => p.status === filter);
+      if (search) filtered = filtered.filter(p =>
+        `${p.firstName} ${p.lastName} ${p.title} ${p.company} ${p.industry}`.toLowerCase().includes(search)
+      );
+
+      const table = document.getElementById('prospectsTable');
+      const empty = document.getElementById('prospectsEmpty');
+
+      if (prospects.length === 0) {
+        table.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+
+      table.innerHTML = filtered.map(p => `
+        <tr>
+          <td style="cursor:pointer" onclick="openDetail('${p.id}')"><strong>${esc(p.firstName)} ${esc(p.lastName)}</strong>${p.linkedinUrl ? ' <a href="'+esc(p.linkedinUrl)+'" target="_blank" onclick="event.stopPropagation()" style="color:var(--primary);font-size:12px;">LI</a>' : ''}</td>
+          <td>${esc(p.title)}</td>
+          <td>${esc(p.company)}</td>
+          <td>${esc(p.industry)}</td>
+          <td>${scoreHTML(p.score)}</td>
+          <td>
+            <select onchange="updateStatus('${p.id}', this.value)" style="padding:4px 6px;border:1px solid var(--border);border-radius:4px;font-size:12px;">
+              <option value="new" ${p.status==='new'?'selected':''}>New</option>
+              <option value="contacted" ${p.status==='contacted'?'selected':''}>Contacted</option>
+              <option value="replied" ${p.status==='replied'?'selected':''}>Replied</option>
+              <option value="meeting_booked" ${p.status==='meeting_booked'?'selected':''}>Meeting Booked</option>
+              <option value="converted" ${p.status==='converted'?'selected':''}>Converted</option>
+              <option value="not_interested" ${p.status==='not_interested'?'selected':''}>Not Interested</option>
+            </select>
+          </td>
+          <td>
+            <div class="table-actions">
+              <button class="btn-ghost" onclick="openMessageGenerator('${p.id}')" ${!aiConfigured?'disabled title="AI not configured"':''}>AI Msg</button>
+              <button class="btn-ghost" onclick="editProspect('${p.id}')">Edit</button>
+              <button class="btn-ghost" style="color:var(--danger)" onclick="deleteProspect('${p.id}')">Del</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        await api(`/prospects/${id}`, { method: 'PUT', body: { status } });
+        const p = prospects.find(pr => pr.id === id);
+        if (p) p.status = status;
+        showToast('Status updated', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function openAddProspect() {
+      document.getElementById('prospectModalTitle').textContent = 'Add Prospect';
+      document.getElementById('editProspectId').value = '';
+      ['pFirstName','pLastName','pTitle','pCompany','pIndustry','pCompanySize','pLinkedinUrl','pEmail','pLocation','pBio','pNotes'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('prospectModal').classList.add('active');
+    }
+
+    function editProspect(id) {
+      const p = prospects.find(pr => pr.id === id);
+      if (!p) return;
+      document.getElementById('prospectModalTitle').textContent = 'Edit Prospect';
+      document.getElementById('editProspectId').value = p.id;
+      document.getElementById('pFirstName').value = p.firstName;
+      document.getElementById('pLastName').value = p.lastName;
+      document.getElementById('pTitle').value = p.title;
+      document.getElementById('pCompany').value = p.company;
+      document.getElementById('pIndustry').value = p.industry;
+      document.getElementById('pCompanySize').value = p.companySize;
+      document.getElementById('pLinkedinUrl').value = p.linkedinUrl;
+      document.getElementById('pEmail').value = p.email;
+      document.getElementById('pLocation').value = p.location;
+      document.getElementById('pBio').value = p.bio;
+      document.getElementById('pNotes').value = p.notes;
+      document.getElementById('prospectModal').classList.add('active');
+    }
+
+    async function saveProspect() {
+      const id = document.getElementById('editProspectId').value;
+      const data = {
+        firstName: document.getElementById('pFirstName').value.trim(),
+        lastName: document.getElementById('pLastName').value.trim(),
+        title: document.getElementById('pTitle').value.trim(),
+        company: document.getElementById('pCompany').value.trim(),
+        industry: document.getElementById('pIndustry').value.trim(),
+        companySize: document.getElementById('pCompanySize').value.trim(),
+        linkedinUrl: document.getElementById('pLinkedinUrl').value.trim(),
+        email: document.getElementById('pEmail').value.trim(),
+        location: document.getElementById('pLocation').value.trim(),
+        bio: document.getElementById('pBio').value.trim(),
+        notes: document.getElementById('pNotes').value.trim(),
+      };
+      if (!data.firstName || !data.lastName) { showToast('Name is required', 'error'); return; }
+      try {
+        if (id) {
+          await api(`/prospects/${id}`, { method: 'PUT', body: data });
         } else {
-          errorEl.style.display = 'block';
+          await api('/prospects', { method: 'POST', body: data });
         }
-      } catch (error) {
-        errorEl.style.display = 'block';
+        closeProspectModal();
+        await loadProspects();
+        renderProspects();
+        showToast(id ? 'Prospect updated' : 'Prospect added', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
       }
     }
 
-    async function verifyStoredPassword() {
-      const stored = localStorage.getItem('bunny_auth');
-      if (!stored) return false;
-
+    async function deleteProspect(id) {
+      if (!confirm('Delete this prospect?')) return;
       try {
-        const response = await fetch('/api/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: stored })
-        });
-        return response.ok;
-      } catch {
-        return false;
+        await api(`/prospects/${id}`, { method: 'DELETE' });
+        await loadProspects();
+        renderProspects();
+        showToast('Prospect deleted', 'success');
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    function closeProspectModal() { document.getElementById('prospectModal').classList.remove('active'); }
+
+    // -----------------------------------------------------------------------
+    // Prospect Detail Panel
+    // -----------------------------------------------------------------------
+    async function openDetail(id) {
+      const p = prospects.find(pr => pr.id === id);
+      if (!p) return;
+      document.getElementById('detailName').textContent = `${p.firstName} ${p.lastName}`;
+      document.getElementById('detailTitle').textContent = `${p.title} at ${p.company}`;
+
+      let html = `
+        <div class="detail-section">
+          <h4>Profile Info</h4>
+          <div class="detail-field"><span class="label">Industry</span><span class="value">${esc(p.industry) || '-'}</span></div>
+          <div class="detail-field"><span class="label">Company Size</span><span class="value">${esc(p.companySize) || '-'}</span></div>
+          <div class="detail-field"><span class="label">Location</span><span class="value">${esc(p.location) || '-'}</span></div>
+          <div class="detail-field"><span class="label">Email</span><span class="value">${esc(p.email) || '-'}</span></div>
+          ${p.linkedinUrl ? `<div class="detail-field"><span class="label">LinkedIn</span><span class="value"><a href="${esc(p.linkedinUrl)}" target="_blank" style="color:var(--primary)">View Profile</a></span></div>` : ''}
+          <div class="detail-field"><span class="label">Score</span><span class="value">${scoreHTML(p.score)} ${recBadge(p.recommendation)}</span></div>
+          <div class="detail-field"><span class="label">Status</span><span class="value">${statusBadge(p.status)}</span></div>
+        </div>
+      `;
+
+      if (p.bio) {
+        html += `<div class="detail-section"><h4>Bio</h4><p style="font-size:14px;line-height:1.5;">${esc(p.bio)}</p></div>`;
+      }
+      if (p.notes) {
+        html += `<div class="detail-section"><h4>Notes</h4><p style="font-size:14px;line-height:1.5;">${esc(p.notes)}</p></div>`;
+      }
+
+      html += `
+        <div class="detail-section">
+          <h4>AI Actions</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-sm btn-primary" onclick="scoreProspect('${p.id}')" ${!aiConfigured?'disabled':''}>Score Prospect</button>
+            <button class="btn btn-sm btn-primary" onclick="analyzeProspect('${p.id}')" ${!aiConfigured?'disabled':''}>Analyze Profile</button>
+            <button class="btn btn-sm btn-primary" onclick="openMessageGenerator('${p.id}')" ${!aiConfigured?'disabled':''}>Generate Message</button>
+          </div>
+          <div id="aiDetailResult"></div>
+        </div>
+      `;
+
+      document.getElementById('detailBody').innerHTML = html;
+      document.getElementById('detailPanel').classList.add('open');
+      document.getElementById('detailOverlay').classList.add('open');
+    }
+
+    function closeDetail() {
+      document.getElementById('detailPanel').classList.remove('open');
+      document.getElementById('detailOverlay').classList.remove('open');
+    }
+
+    // -----------------------------------------------------------------------
+    // AI: Score Prospect
+    // -----------------------------------------------------------------------
+    async function scoreProspect(id) {
+      const p = prospects.find(pr => pr.id === id);
+      if (!p) return;
+      const resultDiv = document.getElementById('aiDetailResult');
+      resultDiv.innerHTML = '<div style="padding:12px;"><span class="spinner dark"></span> Scoring prospect...</div>';
+      try {
+        const result = await api('/ai/score-prospect', { method: 'POST', body: { prospect: p } });
+        await api(`/prospects/${id}`, { method: 'PUT', body: { score: result.score, recommendation: result.recommendation } });
+        p.score = result.score;
+        p.recommendation = result.recommendation;
+
+        resultDiv.innerHTML = `
+          <div class="ai-result" style="margin-top:12px;">
+            <h5>ICP Score: ${result.score}/100 ${recBadge(result.recommendation)}</h5>
+            <ul>${(result.reasons || []).map(r => `<li>${esc(r)}</li>`).join('')}</ul>
+          </div>
+        `;
+        renderProspects();
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:var(--danger);padding:8px;">Error: ${esc(err.message)}</p>`;
       }
     }
 
-    function showMainApp() {
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('mainApp').classList.remove('hidden');
-      initializeApp();
+    // -----------------------------------------------------------------------
+    // AI: Analyze Prospect
+    // -----------------------------------------------------------------------
+    async function analyzeProspect(id) {
+      const p = prospects.find(pr => pr.id === id);
+      if (!p) return;
+      const resultDiv = document.getElementById('aiDetailResult');
+      resultDiv.innerHTML = '<div style="padding:12px;"><span class="spinner dark"></span> Analyzing prospect...</div>';
+      try {
+        const result = await api('/ai/analyze-prospect', { method: 'POST', body: { prospect: p } });
+        resultDiv.innerHTML = `
+          <div class="ai-result" style="margin-top:12px;">
+            <h5>Analysis</h5>
+            <p style="margin-bottom:8px;">${esc(result.summary)}</p>
+            <h5>Talking Points</h5>
+            <ul>${(result.talkingPoints || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+            <h5 style="margin-top:8px;">Approach Strategy</h5>
+            <p>${esc(result.approachStrategy)}</p>
+            <h5 style="margin-top:8px;">Pain Point Matches</h5>
+            <ul>${(result.painPointMatch || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+            <h5 style="margin-top:8px;">Risk Factors</h5>
+            <ul>${(result.riskFactors || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+          </div>
+        `;
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:var(--danger);padding:8px;">Error: ${esc(err.message)}</p>`;
+      }
     }
 
-    function initializeApp() {
-      populateTimeSelects();
-      loadData();
-
-      // Load saved name
-      const savedName = localStorage.getItem('padel_user_name');
-      if (savedName) {
-        document.getElementById('bookedBy').value = savedName;
-      }
-
-      // Load saved view preference
-      const savedView = localStorage.getItem('padel_view');
-      if (savedView) {
-        setView(savedView);
-      }
-
-      // Load saved court preference
-      const savedCourt = localStorage.getItem('bunny_court');
-      if (savedCourt) {
-        setCourt(savedCourt);
+    // -----------------------------------------------------------------------
+    // AI: Bulk Score
+    // -----------------------------------------------------------------------
+    async function bulkScore() {
+      if (!confirm('Score all prospects against your ICP? This uses the AI API.')) return;
+      showToast('Scoring prospects...', '');
+      try {
+        const result = await api('/ai/bulk-score', { method: 'POST' });
+        await loadProspects();
+        renderProspects();
+        showToast(`Scored ${result.scored} prospects`, 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
       }
     }
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', async () => {
-      const isValid = await verifyStoredPassword();
-      if (isValid) {
-        showMainApp();
+    // -----------------------------------------------------------------------
+    // AI: Message Generator
+    // -----------------------------------------------------------------------
+    function openMessageGenerator(id) {
+      currentProspectForMessage = prospects.find(p => p.id === id);
+      if (!currentProspectForMessage) return;
+      document.getElementById('msgProspectName').textContent = `${currentProspectForMessage.firstName} ${currentProspectForMessage.lastName}`;
+      document.getElementById('msgResult').classList.add('hidden');
+      document.getElementById('msgContext').value = '';
+      document.querySelectorAll('.msg-type-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('.msg-type-tab[data-type="connection"]').classList.add('active');
+      document.getElementById('messageModal').classList.add('active');
+    }
+
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('msg-type-tab')) {
+        document.querySelectorAll('.msg-type-tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
       }
     });
 
-    function setCourt(court) {
-      currentCourt = court;
-      localStorage.setItem('bunny_court', court);
-
-      document.getElementById('padelTab').classList.toggle('active', court === 'padel');
-      document.getElementById('tennisTab').classList.toggle('active', court === 'tennis');
-
-      // Toggle theme
-      document.body.classList.toggle('tennis-theme', court === 'tennis');
-
-      loadData();
-    }
-
-    function getMonday(date) {
-      const d = new Date(date);
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      return new Date(d.setDate(diff));
-    }
-
-    function formatDate(date) {
-      return date.toISOString().split('T')[0];
-    }
-
-    function setView(view) {
-      currentView = view;
-      localStorage.setItem('padel_view', view);
-
-      document.getElementById('weekViewBtn').classList.toggle('active', view === 'week');
-      document.getElementById('monthViewBtn').classList.toggle('active', view === 'month');
-
-      loadData();
-    }
-
-    function previousPeriod() {
-      if (currentView === 'week') {
-        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-      } else {
-        currentMonth.setMonth(currentMonth.getMonth() - 1);
-      }
-      loadData();
-    }
-
-    function nextPeriod() {
-      if (currentView === 'week') {
-        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-      } else {
-        currentMonth.setMonth(currentMonth.getMonth() + 1);
-      }
-      loadData();
-    }
-
-    async function loadData() {
-      if (currentView === 'week') {
-        await loadWeek();
-      } else {
-        await loadMonth();
-      }
-    }
-
-    function populateTimeSelects() {
-      const startSelect = document.getElementById('startTime');
-      const endSelect = document.getElementById('endTime');
-
-      for (let h = 7; h <= 22; h++) {
-        for (let m = 0; m < 60; m += 30) {
-          const time = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-          const label = formatTimeLabel(time);
-
-          startSelect.innerHTML += `<option value="${time}">${label}</option>`;
-          endSelect.innerHTML += `<option value="${time}">${label}</option>`;
-        }
-      }
-      // Add end time for 23:00
-      endSelect.innerHTML += `<option value="23:00">11:00 PM</option>`;
-
-      // Set defaults
-      startSelect.value = '09:00';
-      endSelect.value = '10:30';
-    }
-
-    function formatTimeLabel(time) {
-      const [h, m] = time.split(':');
-      const hour = parseInt(h);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const hour12 = hour % 12 || 12;
-      return `${hour12}:${m} ${ampm}`;
-    }
-
-    async function loadWeek() {
-      const weekEnd = new Date(currentWeekStart);
-      weekEnd.setDate(weekEnd.getDate() + 6);
-
-      // Update header
-      const options = { month: 'short', day: 'numeric' };
-      document.getElementById('currentWeek').textContent =
-        `${currentWeekStart.toLocaleDateString('en-US', options)} - ${weekEnd.toLocaleDateString('en-US', options)}`;
+    async function generateMessage() {
+      if (!currentProspectForMessage) return;
+      const msgType = document.querySelector('.msg-type-tab.active').dataset.type;
+      const context = document.getElementById('msgContext').value;
+      const btn = document.getElementById('generateMsgBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Generating...';
 
       try {
-        const response = await fetch(
-          `${API_URL}/range?start=${formatDate(currentWeekStart)}&end=${formatDate(weekEnd)}`
-        );
-        bookings = await response.json();
-        renderCalendar();
-      } catch (error) {
-        showToast('Failed to load bookings', 'error');
+        const result = await api('/ai/generate-message', {
+          method: 'POST',
+          body: { prospect: currentProspectForMessage, messageType: msgType, context },
+        });
+        document.getElementById('msgResult').classList.remove('hidden');
+        if (result.subject) {
+          document.getElementById('msgSubjectRow').classList.remove('hidden');
+          document.getElementById('msgSubject').textContent = result.subject;
+        } else {
+          document.getElementById('msgSubjectRow').classList.add('hidden');
+        }
+        document.getElementById('msgBody').textContent = result.body;
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Generate Message';
       }
     }
 
-    function renderCalendar() {
-      const calendar = document.getElementById('calendar');
-      calendar.innerHTML = '';
-      calendar.className = 'calendar';
+    function copyMessage() {
+      const body = document.getElementById('msgBody').textContent;
+      const subject = document.getElementById('msgSubject').textContent;
+      const text = subject ? `Subject: ${subject}\n\n${body}` : body;
+      navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard', 'success'));
+    }
 
-      const today = formatDate(new Date());
-      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    function closeMessageModal() { document.getElementById('messageModal').classList.remove('active'); }
 
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(currentWeekStart);
-        date.setDate(date.getDate() + i);
-        const dateStr = formatDate(date);
-        const isToday = dateStr === today;
+    // -----------------------------------------------------------------------
+    // CSV Import
+    // -----------------------------------------------------------------------
+    function openImportModal() {
+      csvData = null;
+      document.getElementById('csvFile').value = '';
+      document.getElementById('importPreview').classList.add('hidden');
+      document.getElementById('importBtn').disabled = true;
+      document.getElementById('importModal').classList.add('active');
+    }
+    function closeImportModal() { document.getElementById('importModal').classList.remove('active'); }
 
-        const dayBookings = bookings
-          .filter(b => b.date === dateStr && b.court === currentCourt)
-          .sort((a, b) => a.startTime.localeCompare(b.startTime));
+    function handleCSV(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const lines = e.target.result.split('\n').filter(l => l.trim());
+        if (lines.length < 2) { showToast('CSV file is empty', 'error'); return; }
+        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+        const rows = lines.slice(1).map(line => {
+          const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+          const obj = {};
+          headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+          return obj;
+        });
+        csvData = rows;
+        document.getElementById('importPreview').classList.remove('hidden');
+        document.getElementById('importCount').textContent = `Found ${rows.length} prospects to import`;
+        document.getElementById('importBtn').disabled = false;
+      };
+      reader.readAsText(file);
+    }
 
-        const column = document.createElement('div');
-        column.className = 'day-column';
-        column.innerHTML = `
-          <div class="day-header ${isToday ? 'today' : ''}">
-            <div class="day-name">${dayNames[i]}</div>
-            <div class="day-number">${date.getDate()}</div>
+    async function doImport() {
+      if (!csvData) return;
+      try {
+        const result = await api('/prospects/import', { method: 'POST', body: { prospects: csvData } });
+        closeImportModal();
+        await loadProspects();
+        renderProspects();
+        showToast(`Imported ${result.imported} prospects`, 'success');
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    // Drag and drop
+    const drop = document.getElementById('importDrop');
+    drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('dragover'); });
+    drop.addEventListener('dragleave', () => { drop.classList.remove('dragover'); });
+    drop.addEventListener('drop', (e) => {
+      e.preventDefault(); drop.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) { document.getElementById('csvFile').files = e.dataTransfer.files; handleCSV(document.getElementById('csvFile')); }
+    });
+
+    // -----------------------------------------------------------------------
+    // Campaigns
+    // -----------------------------------------------------------------------
+    async function loadCampaigns() {
+      campaigns = await api('/campaigns');
+    }
+
+    function renderCampaigns() {
+      const container = document.getElementById('campaignsList');
+      const empty = document.getElementById('campaignsEmpty');
+      if (campaigns.length === 0) { container.innerHTML = ''; empty.classList.remove('hidden'); return; }
+      empty.classList.add('hidden');
+
+      container.innerHTML = campaigns.map(c => `
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header">
+            <div>
+              <h3>${esc(c.name)}</h3>
+              <span style="font-size:12px;color:var(--text-secondary);">Created ${new Date(c.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="badge ${c.status === 'active' ? 'badge-replied' : c.status === 'paused' ? 'badge-contacted' : 'badge-new'}">${c.status}</span>
+              <button class="btn btn-sm btn-danger" onclick="deleteCampaign('${c.id}')">Delete</button>
+            </div>
           </div>
-          <div class="day-bookings">
-            ${dayBookings.map(b => `
-              <div class="booking" onclick="editBooking('${b.id}')">
-                <div class="time">${formatTimeLabel(b.startTime)} - ${formatTimeLabel(b.endTime)}</div>
-                <div class="name">${escapeHtml(b.bookedBy)}</div>
-                ${b.notes ? `<div class="notes" style="font-size:11px;color:#666;margin-top:2px;">${escapeHtml(b.notes)}</div>` : ''}
+          <div class="card-body">
+            <div style="display:flex;gap:24px;margin-bottom:16px;">
+              <div><span style="font-size:12px;color:var(--text-secondary);">Prospects</span><div style="font-size:20px;font-weight:700;">${c.prospectIds.length}</div></div>
+              <div><span style="font-size:12px;color:var(--text-secondary);">Sent</span><div style="font-size:20px;font-weight:700;">${c.stats.sent}</div></div>
+              <div><span style="font-size:12px;color:var(--text-secondary);">Replied</span><div style="font-size:20px;font-weight:700;">${c.stats.replied}</div></div>
+              <div><span style="font-size:12px;color:var(--text-secondary);">Meetings</span><div style="font-size:20px;font-weight:700;">${c.stats.meetings}</div></div>
+            </div>
+            <h4 style="font-size:13px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);margin-bottom:8px;">Sequence</h4>
+            ${(c.sequence || []).map(s => `
+              <div class="sequence-step">
+                <span class="step-num">${s.step}</span>
+                <div class="step-info">
+                  <div class="step-type">${stepTypeLabel(s.type)}</div>
+                  <div class="step-delay">Day ${s.delayDays}</div>
+                </div>
               </div>
             `).join('')}
-            <button class="add-booking-btn" onclick="openModal('${dateStr}')">+ Add Booking</button>
           </div>
-        `;
-        calendar.appendChild(column);
-      }
+        </div>
+      `).join('');
     }
 
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
+    function stepTypeLabel(type) {
+      const labels = { connection: 'Connection Request', followup_1: 'Follow-up #1', followup_2: 'Follow-up #2', breakup: 'Break-up Message' };
+      return labels[type] || type;
     }
 
-    async function loadMonth() {
-      const year = currentMonth.getFullYear();
-      const month = currentMonth.getMonth();
+    function openCreateCampaign() {
+      document.getElementById('cName').value = '';
+      document.getElementById('campaignModal').classList.add('active');
+    }
+    function closeCampaignModal() { document.getElementById('campaignModal').classList.remove('active'); }
 
-      // Get first and last day to display (including padding days)
-      const firstOfMonth = new Date(year, month, 1);
-      const lastOfMonth = new Date(year, month + 1, 0);
-
-      // Start from Monday of the week containing the 1st
-      const startDate = getMonday(firstOfMonth);
-      // End on Sunday of the week containing the last day
-      const endDate = new Date(lastOfMonth);
-      const endDay = endDate.getDay();
-      if (endDay !== 0) {
-        endDate.setDate(endDate.getDate() + (7 - endDay));
-      }
-
-      // Update header
-      const options = { month: 'long', year: 'numeric' };
-      document.getElementById('currentWeek').textContent =
-        currentMonth.toLocaleDateString('en-US', options);
-
+    async function saveCampaign() {
+      const name = document.getElementById('cName').value.trim();
+      if (!name) { showToast('Campaign name is required', 'error'); return; }
       try {
-        const response = await fetch(
-          `${API_URL}/range?start=${formatDate(startDate)}&end=${formatDate(endDate)}`
-        );
-        bookings = await response.json();
-        renderMonthCalendar(startDate, endDate, month);
-      } catch (error) {
-        showToast('Failed to load bookings', 'error');
-      }
+        await api('/campaigns', { method: 'POST', body: { name } });
+        closeCampaignModal();
+        await loadCampaigns();
+        renderCampaigns();
+        showToast('Campaign created', 'success');
+      } catch (err) { showToast(err.message, 'error'); }
     }
 
-    function renderMonthCalendar(startDate, endDate, currentMonthIndex) {
-      const calendar = document.getElementById('calendar');
-      calendar.innerHTML = '';
-      calendar.className = 'calendar month-view';
+    async function deleteCampaign(id) {
+      if (!confirm('Delete this campaign?')) return;
+      try {
+        await api(`/campaigns/${id}`, { method: 'DELETE' });
+        await loadCampaigns();
+        renderCampaigns();
+        showToast('Campaign deleted', 'success');
+      } catch (err) { showToast(err.message, 'error'); }
+    }
 
-      const today = formatDate(new Date());
-      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    // -----------------------------------------------------------------------
+    // ICP
+    // -----------------------------------------------------------------------
+    async function loadICP() {
+      try {
+        icp = await api('/icp');
+        document.getElementById('icpTitles').value = (icp.titles || []).join(', ');
+        document.getElementById('icpIndustries').value = (icp.industries || []).join(', ');
+        document.getElementById('icpMinSize').value = icp.companySize?.min || '';
+        document.getElementById('icpMaxSize').value = icp.companySize?.max || '';
+        document.getElementById('icpPainPoints').value = (icp.painPoints || []).join('\n');
+        document.getElementById('icpKeywords').value = (icp.keywords || []).join(', ');
+      } catch (err) { showToast(err.message, 'error'); }
+    }
 
-      // Add day headers
-      dayNames.forEach(name => {
-        const header = document.createElement('div');
-        header.className = 'month-day-header';
-        header.textContent = name;
-        calendar.appendChild(header);
-      });
+    async function saveICP() {
+      const data = {
+        titles: document.getElementById('icpTitles').value.split(',').map(s => s.trim()).filter(Boolean),
+        industries: document.getElementById('icpIndustries').value.split(',').map(s => s.trim()).filter(Boolean),
+        companySize: {
+          min: parseInt(document.getElementById('icpMinSize').value) || 10,
+          max: parseInt(document.getElementById('icpMaxSize').value) || 500,
+        },
+        painPoints: document.getElementById('icpPainPoints').value.split('\n').map(s => s.trim()).filter(Boolean),
+        keywords: document.getElementById('icpKeywords').value.split(',').map(s => s.trim()).filter(Boolean),
+      };
+      try {
+        await api('/icp', { method: 'PUT', body: data });
+        showToast('ICP saved', 'success');
+      } catch (err) { showToast(err.message, 'error'); }
+    }
 
-      // Add days
-      const date = new Date(startDate);
-      while (date <= endDate) {
-        const dateStr = formatDate(date);
-        const isToday = dateStr === today;
-        const isOtherMonth = date.getMonth() !== currentMonthIndex;
+    // -----------------------------------------------------------------------
+    // Templates
+    // -----------------------------------------------------------------------
+    async function loadTemplates() {
+      templates = await api('/templates');
+    }
 
-        const dayBookings = bookings
-          .filter(b => b.date === dateStr && b.court === currentCourt)
-          .sort((a, b) => a.startTime.localeCompare(b.startTime));
-
-        const dayEl = document.createElement('div');
-        dayEl.className = `month-day ${isToday ? 'today' : ''} ${isOtherMonth ? 'other-month' : ''}`;
-
-        const maxVisible = 2;
-        const visibleBookings = dayBookings.slice(0, maxVisible);
-        const hiddenCount = dayBookings.length - maxVisible;
-
-        dayEl.innerHTML = `
-          <div class="month-day-number">${date.getDate()}</div>
-          ${visibleBookings.map(b => `
-            <div class="booking" onclick="editBooking('${b.id}')">
-              <div class="time">${formatTimeLabel(b.startTime)}</div>
-              <div class="name">${escapeHtml(b.bookedBy)}</div>
+    function renderTemplates() {
+      const container = document.getElementById('templatesList');
+      container.innerHTML = templates.map(t => `
+        <div class="card" style="margin-bottom:12px;">
+          <div class="card-header">
+            <div>
+              <h3 style="font-size:15px;">${esc(t.name)}</h3>
+              <span class="badge badge-new" style="margin-top:4px;">${t.type}</span>
             </div>
-          `).join('')}
-          ${hiddenCount > 0 ? `<div class="more-bookings" onclick="openDayDetail('${dateStr}')">+${hiddenCount} more</div>` : ''}
-          ${dayBookings.map(() => '<span class="booking-dot"></span>').join('')}
-          <button class="add-booking-btn" onclick="openModal('${dateStr}')">+</button>
-        `;
-
-        calendar.appendChild(dayEl);
-        date.setDate(date.getDate() + 1);
-      }
+            <button class="btn btn-sm btn-danger" onclick="deleteTemplate('${t.id}')">Delete</button>
+          </div>
+          <div class="card-body">
+            <div class="msg-preview">${esc(t.body)}</div>
+          </div>
+        </div>
+      `).join('');
     }
 
-    function openDayDetail(dateStr) {
-      // Switch to week view showing this date
-      const date = new Date(dateStr);
-      currentWeekStart = getMonday(date);
-      setView('week');
-    }
-
-    function openModal(date) {
-      document.getElementById('modalTitle').textContent = 'New Booking';
-      document.getElementById('bookingId').value = '';
-      document.getElementById('bookingDate').value = date;
-      document.getElementById('notes').value = '';
-      document.getElementById('deleteBtn').style.display = 'none';
-      document.getElementById('courtSelect').value = currentCourt;
-
-      // Reset times
-      document.getElementById('startTime').value = '09:00';
-      document.getElementById('endTime').value = '10:30';
-
-      document.getElementById('bookingModal').classList.add('active');
-    }
-
-    function editBooking(id) {
-      const booking = bookings.find(b => b.id === id);
-      if (!booking) return;
-
-      document.getElementById('modalTitle').textContent = 'Edit Booking';
-      document.getElementById('bookingId').value = booking.id;
-      document.getElementById('bookingDate').value = booking.date;
-      document.getElementById('bookedBy').value = booking.bookedBy;
-      document.getElementById('startTime').value = booking.startTime;
-      document.getElementById('endTime').value = booking.endTime;
-      document.getElementById('notes').value = booking.notes || '';
-      document.getElementById('courtSelect').value = booking.court || 'padel';
-      document.getElementById('deleteBtn').style.display = 'block';
-
-      document.getElementById('bookingModal').classList.add('active');
-    }
-
-    function closeModal() {
-      document.getElementById('bookingModal').classList.remove('active');
-    }
-
-    async function saveBooking() {
-      const id = document.getElementById('bookingId').value;
-      const date = document.getElementById('bookingDate').value;
-      const bookedBy = document.getElementById('bookedBy').value.trim();
-      const startTime = document.getElementById('startTime').value;
-      const endTime = document.getElementById('endTime').value;
-      const notes = document.getElementById('notes').value.trim();
-      const court = document.getElementById('courtSelect').value;
-
-      if (!bookedBy) {
-        showToast('Please enter your name', 'error');
-        return;
-      }
-
-      if (startTime >= endTime) {
-        showToast('End time must be after start time', 'error');
-        return;
-      }
-
-      // Save name for next time
-      localStorage.setItem('padel_user_name', bookedBy);
-
+    async function deleteTemplate(id) {
+      if (!confirm('Delete this template?')) return;
       try {
-        // If editing, delete old booking first
-        if (id) {
-          await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        }
-
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date, startTime, endTime, bookedBy, notes, court })
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to save');
-        }
-
-        closeModal();
-        loadData();
-        showToast('Booking saved!', 'success');
-      } catch (error) {
-        showToast(error.message, 'error');
-      }
+        await api(`/templates/${id}`, { method: 'DELETE' });
+        await loadTemplates();
+        renderTemplates();
+        showToast('Template deleted', 'success');
+      } catch (err) { showToast(err.message, 'error'); }
     }
 
-    async function deleteBooking() {
-      const id = document.getElementById('bookingId').value;
-      if (!id) return;
+    // -----------------------------------------------------------------------
+    // Utility functions
+    // -----------------------------------------------------------------------
+    function esc(str) {
+      if (!str) return '';
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
 
-      if (!confirm('Delete this booking?')) return;
+    function scoreHTML(score) {
+      if (!score) return '<span style="color:#999;font-size:12px;">--</span>';
+      const color = score >= 70 ? 'var(--success)' : score >= 40 ? 'var(--warm)' : '#999';
+      return `<div class="score-bar"><div class="score-fill"><div class="score-fill-inner" style="width:${score}%;background:${color}"></div></div><span class="score-val" style="color:${color}">${score}</span></div>`;
+    }
 
-      try {
-        await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        closeModal();
-        loadData();
-        showToast('Booking deleted', 'success');
-      } catch (error) {
-        showToast('Failed to delete booking', 'error');
-      }
+    function statusBadge(status) {
+      const map = { new: 'badge-new', contacted: 'badge-contacted', replied: 'badge-replied', meeting_booked: 'badge-meeting', converted: 'badge-converted', not_interested: 'badge-lost' };
+      const labels = { new: 'New', contacted: 'Contacted', replied: 'Replied', meeting_booked: 'Meeting', converted: 'Converted', not_interested: 'Lost' };
+      return `<span class="badge ${map[status] || ''}">${labels[status] || status}</span>`;
+    }
+
+    function recBadge(rec) {
+      if (!rec) return '';
+      const map = { hot_lead: 'rec-hot', warm_lead: 'rec-warm', cold_lead: 'rec-cold', not_a_fit: 'rec-none' };
+      const labels = { hot_lead: 'HOT', warm_lead: 'WARM', cold_lead: 'COLD', not_a_fit: 'N/A' };
+      return `<span class="rec-badge ${map[rec] || ''}">${labels[rec] || rec}</span>`;
     }
 
     function showToast(message, type = '') {
       const toast = document.getElementById('toast');
       toast.textContent = message;
       toast.className = `toast ${type} show`;
-
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
+      setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    // Close modal on overlay click
-    document.getElementById('bookingModal').addEventListener('click', (e) => {
-      if (e.target.id === 'bookingModal') {
-        closeModal();
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('active');
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+        closeDetail();
       }
     });
 
-    // Close modal on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeModal();
+    // -----------------------------------------------------------------------
+    // Initialize
+    // -----------------------------------------------------------------------
+    async function init() {
+      try {
+        const [aiStatus] = await Promise.all([
+          api('/ai/status'),
+          loadProspects(),
+          loadCampaigns(),
+          loadTemplates(),
+        ]);
+        aiConfigured = aiStatus.configured;
+        document.getElementById('aiDot').classList.add(aiConfigured ? 'on' : 'off');
+        document.getElementById('aiStatusText').textContent = aiConfigured ? 'AI Connected' : 'AI Not Configured';
+        loadDashboard();
+      } catch (err) {
+        console.error('Init error:', err);
       }
-    });
+    }
+
+    init();
   </script>
 </body>
 </html>
