@@ -589,4 +589,102 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Personal Podcast running at http://localhost:${PORT}`);
   console.log(`Podcast RSS feed: http://localhost:${PORT}/podcast.xml`);
+  scheduleDailyEpisode();
 });
+
+// ========== DAILY AUTO-GENERATION ==========
+
+const DAILY_HOUR = parseInt(process.env.EPISODE_HOUR || '6', 10);   // 0-23
+const DAILY_MINUTE = parseInt(process.env.EPISODE_MINUTE || '0', 10); // 0-59
+
+function todayTag() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function hasTodayEpisode() {
+  const { episodes } = readEpisodes();
+  const today = todayTag();
+  return episodes.some(ep => ep.filename.includes(today));
+}
+
+async function autoGenerateEpisode() {
+  if (generatingEpisode) return;
+  if (hasTodayEpisode()) {
+    console.log('[scheduler] Today\'s episode already exists, skipping');
+    return;
+  }
+
+  console.log('[scheduler] Auto-generating daily episode...');
+  generatingEpisode = true;
+
+  try {
+    const articles = await fetchAllArticles();
+    if (articles.length === 0) {
+      console.log('[scheduler] No articles available, skipping');
+      generatingEpisode = false;
+      return;
+    }
+
+    const feedsData = readFeeds();
+    const script = buildEpisodeScript(articles, feedsData);
+
+    const now = new Date();
+    const dateTag = now.toISOString().slice(0, 10);
+    const filename = `episode-${dateTag}-${now.getTime()}.mp3`;
+    const filepath = path.join(EPISODES_DIR, filename);
+
+    const fileSize = await generateAudio(script, filepath);
+    const wordCount = script.split(/\s+/).length;
+    const audioDurationSecs = Math.round((wordCount / 150) * 60);
+
+    const episode = {
+      id: now.getTime().toString(),
+      title: `Daily Briefing — ${now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`,
+      description: `Your personal briefing covering ${feedsData.categories.map(c => c.name).join(', ')}. ${articles.length} stories from across your feeds.`,
+      filename,
+      fileSize,
+      duration: audioDurationSecs,
+      pubDate: now.toISOString(),
+      articleCount: articles.length,
+    };
+
+    const episodesData = readEpisodes();
+    episodesData.episodes.unshift(episode);
+    writeEpisodes(episodesData);
+
+    console.log(`[scheduler] Episode generated: ${episode.title} (${articles.length} stories)`);
+  } catch (err) {
+    console.error('[scheduler] Auto-generation failed:', err.message);
+  } finally {
+    generatingEpisode = false;
+  }
+}
+
+function msUntilNextRun() {
+  const now = new Date();
+  const next = new Date(now);
+  next.setHours(DAILY_HOUR, DAILY_MINUTE, 0, 0);
+  if (next <= now) next.setDate(next.getDate() + 1);
+  return next - now;
+}
+
+function scheduleDailyEpisode() {
+  console.log(`[scheduler] Daily episode set for ${String(DAILY_HOUR).padStart(2,'0')}:${String(DAILY_MINUTE).padStart(2,'0')}`);
+
+  // Generate on startup if no episode today
+  setTimeout(() => autoGenerateEpisode(), 5000);
+
+  // Schedule next run, then repeat every 24h
+  function scheduleNext() {
+    const delay = msUntilNextRun();
+    const nextTime = new Date(Date.now() + delay);
+    console.log(`[scheduler] Next episode at ${nextTime.toLocaleString()}`);
+
+    setTimeout(() => {
+      autoGenerateEpisode();
+      scheduleNext();
+    }, delay);
+  }
+
+  scheduleNext();
+}
