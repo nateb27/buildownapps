@@ -754,6 +754,134 @@
       .player-btn.main-control { width: 40px; height: 40px; }
     }
 
+    /* Setup Wizard */
+    .setup-wizard {
+      padding: 4px 0;
+    }
+
+    .setup-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 14px;
+    }
+
+    .setup-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .setup-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .setup-step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .step-number {
+      background: var(--accent);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step-number.done {
+      background: #22c55e;
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-content h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .step-content p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .setup-input {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      outline: none;
+      margin-bottom: 8px;
+    }
+
+    .setup-input:focus {
+      border-color: var(--accent);
+    }
+
+    .setup-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .setup-btn {
+      background: var(--accent);
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity 0.2s;
+    }
+
+    .setup-btn:hover {
+      opacity: 0.85;
+    }
+
+    .setup-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .setup-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .setup-status.connected {
+      background: rgba(34, 197, 94, 0.1);
+      color: #22c55e;
+    }
+
+    .setup-status.disconnected {
+      background: rgba(239, 68, 68, 0.1);
+      color: #EF4444;
+    }
+
     /* Episodes View */
     .episodes-view {
       padding: 4px 0;
@@ -1452,13 +1580,20 @@
 
     // ========== EPISODES VIEW ==========
 
+    let distConfig = null;
+
     async function loadEpisodes() {
       renderLoading();
       try {
-        const res = await fetch('/api/episodes');
-        episodes = await res.json();
+        const [epRes, distRes] = await Promise.all([
+          fetch('/api/episodes'),
+          fetch('/api/distribution')
+        ]);
+        episodes = await epRes.json();
+        distConfig = await distRes.json();
       } catch {
         episodes = [];
+        distConfig = null;
       }
       renderEpisodes();
     }
@@ -1469,24 +1604,68 @@
       return `${m}:${String(s).padStart(2, '0')}`;
     }
 
-    function renderEpisodes() {
-      const rssUrl = `${location.origin}/podcast.xml`;
+    function isDistConfigured() {
+      return distConfig && distConfig.provider === 'buzzsprout'
+        && distConfig.buzzsprout && distConfig.buzzsprout.apiKey;
+    }
 
+    function renderSetupWizard() {
+      const configured = isDistConfigured();
+
+      let html = `<div class="setup-wizard">`;
+
+      if (configured) {
+        html += `
+          <div class="setup-status connected">
+            &#10003; Connected to Buzzsprout — episodes auto-publish to Spotify &amp; Apple Podcasts
+          </div>
+          <div style="margin-top:12px">
+            <button class="setup-btn" style="background:var(--bg-card);color:var(--text-secondary)" id="disconnectBtn">Disconnect</button>
+          </div>`;
+      } else {
+        html += `
+          <div class="setup-card">
+            <h3>Get your podcast on Spotify &amp; Apple Podcasts</h3>
+            <p>One-time setup (5 min). After this, new episodes auto-appear in your podcast app every morning.</p>
+
+            <div class="setup-step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>Create a free Buzzsprout account</h4>
+                <p>Go to buzzsprout.com and sign up (free tier works). Create a new podcast.</p>
+              </div>
+            </div>
+
+            <div class="setup-step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>Submit to Spotify &amp; Apple</h4>
+                <p>In Buzzsprout, go to Directories and click "Submit" for Spotify and Apple Podcasts. Takes one click each.</p>
+              </div>
+            </div>
+
+            <div class="setup-step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>Paste your API key here</h4>
+                <p>Go to buzzsprout.com/my/profile/api to get your API key and Podcast ID.</p>
+                <input type="text" class="setup-input" id="setupPodcastId" placeholder="Podcast ID (e.g. 2289006)">
+                <input type="text" class="setup-input" id="setupApiKey" placeholder="API key">
+                <button class="setup-btn" id="connectBtn">Connect &amp; Start Publishing</button>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      html += `</div>`;
+      return html;
+    }
+
+    function renderEpisodes() {
       let html = `<div class="episodes-view">`;
 
-      // Subscribe banner
-      html += `
-        <div class="subscribe-banner">
-          <h3>Subscribe to Your Podcast</h3>
-          <p>Copy this RSS feed URL and add it to Apple Podcasts, Spotify, Overcast, or any podcast app.</p>
-          <div class="rss-url-row">
-            <input type="text" class="rss-url-input" value="${escapeAttr(rssUrl)}" readonly id="rssUrlInput">
-            <button class="btn-copy" id="copyRssBtn">Copy</button>
-          </div>
-          <div class="subscribe-links">
-            <span>Works with: Apple Podcasts, Spotify, Overcast, Pocket Casts, and more</span>
-          </div>
-        </div>`;
+      // Setup wizard / status
+      html += renderSetupWizard();
 
       // Generate button
       html += `
@@ -1550,6 +1729,63 @@
       contentEl.querySelectorAll('[data-delete-episode]').forEach(btn => {
         btn.addEventListener('click', () => deleteEpisode(btn.dataset.deleteEpisode));
       });
+
+      // Setup wizard handlers
+      const connectBtn = document.getElementById('connectBtn');
+      if (connectBtn) {
+        connectBtn.addEventListener('click', async () => {
+          const podcastId = document.getElementById('setupPodcastId').value.trim();
+          const apiKey = document.getElementById('setupApiKey').value.trim();
+          if (!podcastId || !apiKey) {
+            showToast('Enter both Podcast ID and API key');
+            return;
+          }
+          connectBtn.disabled = true;
+          connectBtn.textContent = 'Connecting...';
+
+          try {
+            const res = await fetch('/api/distribution', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ provider: 'buzzsprout', buzzsprout: { podcastId, apiKey } })
+            });
+            if (res.ok) {
+              // Test the connection
+              const testRes = await fetch('/api/distribution/test', { method: 'POST' });
+              const testData = await testRes.json();
+              if (testData.connected) {
+                showToast('Connected! Episodes will auto-publish to Spotify & Apple Podcasts');
+              } else {
+                showToast('Saved, but connection test failed: ' + (testData.error || 'Check credentials'));
+              }
+            } else {
+              const err = await res.json();
+              showToast(err.error || 'Failed to save');
+            }
+          } catch {
+            showToast('Failed to connect');
+          }
+
+          await loadEpisodes();
+        });
+      }
+
+      const disconnectBtn = document.getElementById('disconnectBtn');
+      if (disconnectBtn) {
+        disconnectBtn.addEventListener('click', async () => {
+          try {
+            await fetch('/api/distribution', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ provider: 'none' })
+            });
+            showToast('Disconnected');
+          } catch {
+            showToast('Failed');
+          }
+          await loadEpisodes();
+        });
+      }
     }
 
     async function generateEpisode() {
@@ -1828,8 +2064,8 @@
     // Player event listeners
     playBtn.addEventListener('click', startPodcast);
     pauseBtn.addEventListener('click', (e) => {
-      // If onclick is set (episode audio mode), that handler runs instead
-      if (!pauseBtn.onclick) togglePause();
+      if (pauseBtn.onclick) return; // episode audio mode handles it
+      togglePause();
     });
     document.getElementById('nextBtn').addEventListener('click', nextArticle);
     document.getElementById('prevBtn').addEventListener('click', prevArticle);

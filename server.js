@@ -30,6 +30,9 @@ const PODCAST_AUTHOR = 'My Podcast';
 const PODCAST_LANGUAGE = 'en';
 const TTS_VOICE = 'en-US-AndrewMultilingualNeural';
 
+// Podcast distribution config (stored in data/distribution.json)
+const DIST_FILE = path.join(DATA_DIR, 'distribution.json');
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -470,6 +473,9 @@ app.post('/api/episodes/generate', async (req, res) => {
     episodesData.episodes.unshift(episode); // newest first
     writeEpisodes(episodesData);
 
+    // Auto-distribute to Spotify/Apple via hosting platform
+    await distributeEpisode(episode);
+
     generatingEpisode = false;
     res.status(201).json(episode);
   } catch (err) {
@@ -581,6 +587,130 @@ app.get('/api/episodes/status', (req, res) => {
   res.json({ generating: generatingEpisode });
 });
 
+// ========== DISTRIBUTION (auto-publish to Spotify/Apple via Buzzsprout) ==========
+
+function readDistConfig() {
+  try {
+    return JSON.parse(fs.readFileSync(DIST_FILE, 'utf8'));
+  } catch {
+    return { provider: null, buzzsprout: { podcastId: '', apiKey: '' } };
+  }
+}
+
+function writeDistConfig(data) {
+  fs.writeFileSync(DIST_FILE, JSON.stringify(data, null, 2));
+}
+
+// Upload episode to Buzzsprout (which auto-distributes to Spotify + Apple)
+async function uploadToBuzzsprout(episode, baseUrl) {
+  const config = readDistConfig();
+  if (config.provider !== 'buzzsprout' || !config.buzzsprout.apiKey || !config.buzzsprout.podcastId) {
+    return { skipped: true, reason: 'Buzzsprout not configured' };
+  }
+
+  const { podcastId, apiKey } = config.buzzsprout;
+  const audioUrl = `${baseUrl}/episodes/${encodeURIComponent(episode.filename)}`;
+
+  const body = JSON.stringify({
+    title: episode.title,
+    description: episode.description,
+    audio_url: audioUrl,
+    published_at: episode.pubDate
+  });
+
+  const url = `https://www.buzzsprout.com/api/${podcastId}/episodes.json`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Token token=${apiKey}`,
+      'Content-Type': 'application/json; charset=utf-8'
+    },
+    body
+  });
+
+  if (response.status === 201) {
+    const data = await response.json();
+    console.log(`[distribution] Uploaded to Buzzsprout: episode ${data.id}`);
+    return { success: true, buzzsproutId: data.id };
+  } else {
+    const text = await response.text();
+    console.error(`[distribution] Buzzsprout upload failed (${response.status}): ${text}`);
+    return { success: false, status: response.status, error: text };
+  }
+}
+
+// Auto-distribute after episode generation
+async function distributeEpisode(episode) {
+  const config = readDistConfig();
+  if (!config.provider) return;
+
+  const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
+
+  try {
+    if (config.provider === 'buzzsprout') {
+      await uploadToBuzzsprout(episode, baseUrl);
+    }
+  } catch (err) {
+    console.error('[distribution] Failed:', err.message);
+  }
+}
+
+// API: Get distribution config
+app.get('/api/distribution', (req, res) => {
+  const config = readDistConfig();
+  // Mask the API key for security
+  const safe = { ...config };
+  if (safe.buzzsprout && safe.buzzsprout.apiKey) {
+    safe.buzzsprout.apiKey = safe.buzzsprout.apiKey.slice(0, 4) + '••••';
+  }
+  res.json(safe);
+});
+
+// API: Save distribution config
+app.post('/api/distribution', (req, res) => {
+  const { provider, buzzsprout } = req.body;
+
+  if (provider === 'buzzsprout') {
+    if (!buzzsprout || !buzzsprout.podcastId || !buzzsprout.apiKey) {
+      return res.status(400).json({ error: 'Buzzsprout podcast ID and API key are required' });
+    }
+    writeDistConfig({ provider: 'buzzsprout', buzzsprout });
+    console.log('[distribution] Buzzsprout configured');
+    res.json({ success: true });
+  } else if (provider === null || provider === 'none') {
+    writeDistConfig({ provider: null, buzzsprout: { podcastId: '', apiKey: '' } });
+    res.json({ success: true });
+  } else {
+    res.status(400).json({ error: 'Unsupported provider' });
+  }
+});
+
+// API: Test distribution connection
+app.post('/api/distribution/test', async (req, res) => {
+  const config = readDistConfig();
+  if (config.provider !== 'buzzsprout') {
+    return res.json({ connected: false, error: 'No provider configured' });
+  }
+
+  try {
+    const { podcastId, apiKey } = config.buzzsprout;
+    const url = `https://www.buzzsprout.com/api/${podcastId}/episodes.json`;
+    const response = await fetch(url, {
+      headers: { 'Authorization': `Token token=${apiKey}` }
+    });
+
+    if (response.ok) {
+      const episodes = await response.json();
+      res.json({ connected: true, episodeCount: episodes.length });
+    } else {
+      res.json({ connected: false, error: `HTTP ${response.status}` });
+    }
+  } catch (err) {
+    res.json({ connected: false, error: err.message });
+  }
+});
+
 // Serve the main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -651,6 +781,9 @@ async function autoGenerateEpisode() {
     const episodesData = readEpisodes();
     episodesData.episodes.unshift(episode);
     writeEpisodes(episodesData);
+
+    // Auto-distribute to Spotify/Apple
+    await distributeEpisode(episode);
 
     console.log(`[scheduler] Episode generated: ${episode.title} (${articles.length} stories)`);
   } catch (err) {
