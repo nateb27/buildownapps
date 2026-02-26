@@ -3,329 +3,304 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bunny Run Racket Club</title>
+  <title>My Podcast</title>
   <style>
+    :root {
+      --bg-primary: #0f0f0f;
+      --bg-secondary: #1a1a1a;
+      --bg-card: #222222;
+      --bg-hover: #2a2a2a;
+      --text-primary: #f0f0f0;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666;
+      --border: #333;
+      --accent: #8B5CF6;
+      --fiction: #8B5CF6;
+      --clemson: #F97316;
+      --tech: #06B6D4;
+      --laliga: #EF4444;
+    }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    :root {
-      --primary: #2d8a3e;
-      --primary-dark: #1a5f2a;
-      --primary-light: #e8f5e9;
-      --primary-lighter: #c8e6c9;
-    }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
       min-height: 100vh;
-      color: #333;
-      transition: background 0.3s;
+      -webkit-font-smoothing: antialiased;
     }
 
-    body.tennis-theme {
-      --primary: #1976d2;
-      --primary-dark: #0d47a1;
-      --primary-light: #e3f2fd;
-      --primary-lighter: #bbdefb;
-    }
-
-    .container {
-      max-width: 1000px;
+    .app {
+      max-width: 800px;
       margin: 0 auto;
-      padding: 20px;
+      padding-bottom: 80px;
     }
 
-    /* Login screen */
-    .login-screen {
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15, 15, 15, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px 0;
+    }
+
+    .header-top {
       display: flex;
-      justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .login-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      padding: 40px;
-      width: 100%;
-      max-width: 360px;
-      text-align: center;
-    }
-
-    .login-card h1 {
-      color: var(--primary);
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-    }
-
-    .login-card p {
-      color: #666;
-      margin-bottom: 24px;
-      font-size: 14px;
-    }
-
-    .login-card input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e9ecef;
-      border-radius: 8px;
-      font-size: 16px;
+      justify-content: space-between;
       margin-bottom: 16px;
-      text-align: center;
     }
 
-    .login-card input:focus {
-      outline: none;
-      border-color: var(--primary);
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .login-card button {
-      width: 100%;
-      padding: 12px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--fiction), var(--tech));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.2s;
     }
 
-    .login-card button:hover {
-      background: var(--primary-dark);
+    .icon-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
     }
 
-    .login-error {
-      color: #dc3545;
-      font-size: 14px;
-      margin-top: 12px;
+    .icon-btn.spinning svg {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Category Tabs */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .tabs::-webkit-scrollbar {
       display: none;
     }
 
-    .hidden {
-      display: none !important;
+    .tab {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    header {
+    .tab:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .tab.active {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border-color: var(--text-primary);
+    }
+
+    .tab .tab-icon {
+      font-size: 14px;
+    }
+
+    /* Content Area */
+    .content {
+      padding: 16px 20px;
+    }
+
+    .feed-status {
       text-align: center;
-      padding: 20px 0 30px;
-      color: white;
+      padding: 60px 20px;
+      color: var(--text-muted);
     }
 
-    header h1 {
-      font-size: 2rem;
-      margin-bottom: 5px;
+    .feed-status .status-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
     }
 
-    header p {
-      opacity: 0.9;
-      font-size: 1rem;
+    .feed-status p {
+      font-size: 15px;
+      line-height: 1.5;
     }
 
-    .card {
-      background: white;
+    /* Loading skeleton */
+    .skeleton {
+      background: var(--bg-card);
       border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      margin-bottom: 12px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .skeleton-line {
+      background: var(--bg-hover);
+      border-radius: 4px;
+      height: 14px;
+      margin-bottom: 10px;
+    }
+
+    .skeleton-line.short { width: 40%; }
+    .skeleton-line.medium { width: 70%; }
+    .skeleton-line.long { width: 100%; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Article Cards */
+    .article-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      position: relative;
       overflow: hidden;
     }
 
-    .week-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
+    .article-card:hover {
+      background: var(--bg-hover);
+      border-color: var(--border);
+      transform: translateY(-1px);
     }
 
-    .week-nav button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-
-    .week-nav button:hover {
-      background: var(--primary-dark);
-    }
-
-    .week-nav .current-week {
-      font-weight: 600;
-      color: #333;
-    }
-
-    .view-toggle {
-      display: flex;
-      gap: 4px;
-      background: #e9ecef;
-      padding: 4px;
-      border-radius: 8px;
-    }
-
-    .view-toggle button {
-      background: transparent;
-      color: #666;
-      padding: 6px 12px;
-      font-size: 13px;
-    }
-
-    .view-toggle button.active {
-      background: white;
-      color: var(--primary);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .view-toggle button:hover:not(.active) {
-      background: rgba(255,255,255,0.5);
-    }
-
-    .court-tabs {
-      display: flex;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .court-tab {
-      flex: 1;
-      padding: 14px 20px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      color: #666;
-      transition: all 0.2s;
-      border-bottom: 3px solid transparent;
-    }
-
-    .court-tab:hover {
-      background: #f0f0f0;
-    }
-
-    .court-tab.active {
-      color: #2d8a3e;
-      border-bottom-color: #2d8a3e;
-      background: white;
-    }
-
-    .court-tab.padel.active {
-      color: #2d8a3e;
-      border-bottom-color: #2d8a3e;
-    }
-
-    .court-tab.tennis.active {
-      color: #1976d2;
-      border-bottom-color: #1976d2;
-    }
-
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 1px;
-      background: #e9ecef;
-    }
-
-    .day-column {
-      background: white;
-      min-height: 300px;
-    }
-
-    .day-header {
-      padding: 12px 8px;
-      text-align: center;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-      position: sticky;
+    .article-card::before {
+      content: '';
+      position: absolute;
       top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      border-radius: 3px 0 0 3px;
     }
 
-    .day-header .day-name {
+    .article-card[data-category="fiction"]::before { background: var(--fiction); }
+    .article-card[data-category="clemson"]::before { background: var(--clemson); }
+    .article-card[data-category="tech"]::before { background: var(--tech); }
+    .article-card[data-category="laliga"]::before { background: var(--laliga); }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
       font-size: 12px;
-      color: #666;
+    }
+
+    .category-badge {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    .day-header .day-number {
-      font-size: 1.5rem;
+    .category-badge.fiction { background: rgba(139, 92, 246, 0.15); color: var(--fiction); }
+    .category-badge.clemson { background: rgba(249, 115, 22, 0.15); color: var(--clemson); }
+    .category-badge.tech { background: rgba(6, 182, 212, 0.15); color: var(--tech); }
+    .category-badge.laliga { background: rgba(239, 68, 68, 0.15); color: var(--laliga); }
+
+    .source-name {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .card-time {
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .card-title {
+      font-size: 17px;
       font-weight: 600;
-      color: #333;
+      line-height: 1.35;
+      margin-bottom: 8px;
+      letter-spacing: -0.2px;
     }
 
-    .day-header.today {
-      background: var(--primary);
+    .card-snippet {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    .day-header.today .day-name,
-    .day-header.today .day-number {
-      color: white;
+    .card-image {
+      width: calc(100% + 40px);
+      margin: 12px -20px -20px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 0 0 16px 16px;
     }
 
-    .day-bookings {
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .booking {
-      background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-lighter) 100%);
-      border-left: 3px solid var(--primary);
-      padding: 8px 10px;
-      border-radius: 6px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s, background 0.3s, border-color 0.3s;
-    }
-
-    .booking:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .booking .time {
-      font-weight: 600;
-      color: var(--primary-dark);
-      font-size: 12px;
-    }
-
-    .booking .name {
-      color: #333;
-      margin-top: 2px;
-    }
-
-    .add-booking-btn {
-      width: 100%;
-      padding: 10px;
-      margin-top: 4px;
-      background: transparent;
-      border: 2px dashed #ccc;
-      border-radius: 6px;
-      color: #999;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
-
-    .add-booking-btn:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: var(--primary-light);
-    }
-
-    /* Modal */
+    /* Settings Modal */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -333,148 +308,291 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
       justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 20px;
+      align-items: flex-end;
     }
 
-    .modal-overlay.active {
+    .modal-overlay.open {
       display: flex;
     }
 
     .modal {
-      background: white;
-      border-radius: 16px;
+      background: var(--bg-secondary);
+      border-radius: 20px 20px 0 0;
       width: 100%;
-      max-width: 400px;
-      overflow: hidden;
-      animation: modalIn 0.2s ease-out;
+      max-width: 800px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 24px;
+      animation: slideUp 0.3s ease;
     }
 
-    @keyframes modalIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
     }
 
     .modal-header {
-      padding: 20px;
-      background: var(--primary);
-      color: white;
-      transition: background 0.3s;
-    }
-
-    .modal-header h2 {
-      font-size: 1.25rem;
-    }
-
-    .modal-body {
-      padding: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 500;
-      color: #333;
-      font-size: 14px;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 2px solid #e9ecef;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .time-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .modal-footer {
-      padding: 15px 20px;
-      background: #f8f9fa;
       display: flex;
-      gap: 10px;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
     }
 
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: var(--bg-card);
       border: none;
+      color: var(--text-secondary);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .btn-primary {
-      background: var(--primary);
+    .modal-close:hover {
+      color: var(--text-primary);
+    }
+
+    .settings-category {
+      margin-bottom: 24px;
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .settings-category-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .settings-category-icon {
+      font-size: 20px;
+    }
+
+    .settings-category-name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .settings-category-delete {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .settings-category-delete:hover {
+      color: #EF4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .feed-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .feed-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .feed-item-name {
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .feed-item-url {
+      font-size: 11px;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .feed-item-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .feed-item-remove:hover {
+      color: #EF4444;
+    }
+
+    .add-feed-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .add-feed-row input {
+      flex: 1;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      outline: none;
+      min-width: 0;
+    }
+
+    .add-feed-row input:focus {
+      border-color: var(--accent);
+    }
+
+    .add-feed-row input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .btn-add {
+      background: var(--accent);
+      border: none;
       color: white;
-      transition: background 0.2s;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
     }
 
-    .btn-primary:hover {
-      background: var(--primary-dark);
+    .btn-add:hover {
+      opacity: 0.85;
     }
 
-    .btn-secondary {
-      background: #e9ecef;
-      color: #333;
+    /* Add Category Section */
+    .add-category-section {
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      margin-top: 8px;
     }
 
-    .btn-secondary:hover {
-      background: #dee2e6;
+    .add-category-section h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
     }
 
-    .btn-danger {
-      background: #dc3545;
-      color: white;
+    .add-category-row {
+      display: flex;
+      gap: 8px;
     }
 
-    .btn-danger:hover {
-      background: #c82333;
+    .add-category-row input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      outline: none;
     }
 
-    /* Toast notifications */
+    .add-category-row input:focus {
+      border-color: var(--accent);
+    }
+
+    .add-category-row input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 80px 30px;
+    }
+
+    .empty-state .empty-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .empty-state h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      max-width: 360px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Date headers */
+    .date-header {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 20px 0 10px;
+    }
+
+    .date-header:first-child {
+      padding-top: 4px;
+    }
+
+    /* Toast */
     .toast {
       position: fixed;
-      bottom: 20px;
+      bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: #333;
-      color: white;
+      background: var(--bg-card);
+      color: var(--text-primary);
       padding: 12px 24px;
-      border-radius: 8px;
+      border-radius: 12px;
       font-size: 14px;
+      font-weight: 500;
       opacity: 0;
       transition: all 0.3s;
-      z-index: 2000;
+      z-index: 300;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
 
     .toast.show {
@@ -482,747 +600,469 @@
       opacity: 1;
     }
 
-    .toast.error {
-      background: #dc3545;
-    }
-
-    .toast.success {
-      background: #28a745;
-    }
-
     /* Responsive */
-    @media (max-width: 768px) {
-      .container {
-        padding: 10px;
+    @media (max-width: 600px) {
+      .header { padding: 12px 16px 0; }
+      .content { padding: 12px 16px; }
+      .article-card { padding: 16px; }
+      .card-title { font-size: 16px; }
+      .card-image {
+        width: calc(100% + 32px);
+        margin: 12px -16px -16px;
       }
-
-      header h1 {
-        font-size: 1.5rem;
-      }
-
-      .calendar {
-        display: block;
-      }
-
-      .day-column {
-        min-height: auto;
-        border-bottom: 1px solid #e9ecef;
-      }
-
-      .day-column:last-child {
-        border-bottom: none;
-      }
-
-      .day-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 15px;
-      }
-
-      .day-header .day-name {
-        font-size: 14px;
-      }
-
-      .day-header .day-number {
-        font-size: 1.25rem;
-      }
-
-      .day-bookings {
-        padding: 10px 15px;
-      }
-
-      .day-bookings:empty::before {
-        content: 'No bookings';
-        color: #999;
-        font-size: 13px;
-      }
-    }
-
-    /* Empty state */
-    .empty-day {
-      color: #ccc;
-      font-size: 12px;
-      text-align: center;
-      padding: 20px 0;
-    }
-
-    /* Monthly view */
-    .calendar.month-view {
-      grid-template-columns: repeat(7, 1fr);
-      grid-template-rows: auto;
-    }
-
-    .month-day-header {
-      background: #f8f9fa;
-      padding: 8px;
-      text-align: center;
-      font-size: 12px;
-      font-weight: 600;
-      color: #666;
-      text-transform: uppercase;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .month-day {
-      background: white;
-      min-height: 100px;
-      padding: 4px;
-      border-bottom: 1px solid #e9ecef;
-      border-right: 1px solid #e9ecef;
-    }
-
-    .month-day:nth-child(7n) {
-      border-right: none;
-    }
-
-    .month-day.other-month {
-      background: #fafafa;
-    }
-
-    .month-day.other-month .month-day-number {
-      color: #ccc;
-    }
-
-    .month-day-number {
-      font-size: 14px;
-      font-weight: 600;
-      color: #333;
-      padding: 4px 6px;
-      display: inline-block;
-    }
-
-    .month-day.today .month-day-number {
-      background: var(--primary);
-      color: white;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.3s;
-    }
-
-    .month-day .booking {
-      padding: 3px 6px;
-      font-size: 11px;
-      margin-bottom: 2px;
-    }
-
-    .month-day .booking .time {
-      font-size: 10px;
-    }
-
-    .month-day .booking .name {
-      font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .month-day .more-bookings {
-      font-size: 11px;
-      color: var(--primary);
-      padding: 2px 6px;
-      cursor: pointer;
-    }
-
-    .month-day .add-booking-btn {
-      padding: 4px;
-      font-size: 11px;
-      margin-top: 2px;
-    }
-
-    @media (max-width: 768px) {
-      .calendar.month-view {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-      }
-
-      .month-day {
-        min-height: 60px;
-        padding: 2px;
-      }
-
-      .month-day-number {
-        font-size: 12px;
-        padding: 2px 4px;
-      }
-
-      .month-day .booking {
-        display: none;
-      }
-
-      .month-day .booking-dot {
-        display: inline-block;
-        width: 6px;
-        height: 6px;
-        background: var(--primary);
-        border-radius: 50%;
-        margin: 1px;
-      }
-
-      .month-day .add-booking-btn {
-        display: none;
-      }
-
-      .view-toggle {
-        order: 3;
-        width: 100%;
-        justify-content: center;
-        margin-top: 10px;
-      }
-
-      .week-nav {
-        flex-wrap: wrap;
-      }
+      .modal { padding: 20px 16px; }
+      .add-feed-row { flex-wrap: wrap; }
     }
   </style>
 </head>
 <body>
-  <!-- Login Screen -->
-  <div class="login-screen" id="loginScreen">
-    <div class="login-card">
-      <h1>Bunny Run Racket Club</h1>
-      <p>Enter the password to access bookings</p>
-      <input type="password" id="passwordInput" placeholder="Password" onkeypress="if(event.key==='Enter')checkPassword()">
-      <button onclick="checkPassword()">Enter</button>
-      <div class="login-error" id="loginError">Incorrect password</div>
-    </div>
-  </div>
-
-  <!-- Main App -->
-  <div class="container hidden" id="mainApp">
-    <header>
-      <h1>Bunny Run Racket Club</h1>
-      <p>Book your court time</p>
-    </header>
-
-    <div class="card">
-      <div class="court-tabs">
-        <button class="court-tab padel active" id="padelTab" onclick="setCourt('padel')">Padel Court</button>
-        <button class="court-tab tennis" id="tennisTab" onclick="setCourt('tennis')">Tennis Court</button>
-      </div>
-      <div class="week-nav">
-        <button onclick="previousPeriod()">&larr; Previous</button>
-        <span class="current-week" id="currentWeek"></span>
-        <button onclick="nextPeriod()">Next &rarr;</button>
-        <div class="view-toggle">
-          <button id="weekViewBtn" class="active" onclick="setView('week')">Week</button>
-          <button id="monthViewBtn" onclick="setView('month')">Month</button>
+  <div class="app">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-top">
+        <div class="logo">
+          <div class="logo-icon">🎙️</div>
+          <span class="logo-text">My Podcast</span>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn" id="refreshBtn" title="Refresh feeds">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5v4h4"/><path d="M1.84 10a6.5 6.5 0 1 0 .66-4.5L1.5 5.5"/></svg>
+          </button>
+          <button class="icon-btn" id="settingsBtn" title="Manage feeds">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M13.3 10a1.2 1.2 0 0 0 .24 1.32l.04.04a1.44 1.44 0 1 1-2.04 2.04l-.04-.04a1.2 1.2 0 0 0-1.32-.24 1.2 1.2 0 0 0-.72 1.1v.12a1.44 1.44 0 1 1-2.88 0v-.06A1.2 1.2 0 0 0 5.8 13.3a1.2 1.2 0 0 0-1.32.24l-.04.04a1.44 1.44 0 1 1-2.04-2.04l.04-.04A1.2 1.2 0 0 0 2.68 10a1.2 1.2 0 0 0-1.1-.72H1.44a1.44 1.44 0 0 1 0-2.88h.06A1.2 1.2 0 0 0 2.7 5.8a1.2 1.2 0 0 0-.24-1.32l-.04-.04a1.44 1.44 0 1 1 2.04-2.04l.04.04A1.2 1.2 0 0 0 5.82 2.68h.06V1.44a1.44 1.44 0 1 1 2.88 0v.06a1.2 1.2 0 0 0 .72 1.1 1.2 1.2 0 0 0 1.32-.24l.04-.04a1.44 1.44 0 1 1 2.04 2.04l-.04.04a1.2 1.2 0 0 0-.24 1.32v.06h.12a1.44 1.44 0 0 1 0 2.88h-.06a1.2 1.2 0 0 0-1.1.72z"/></svg>
+          </button>
         </div>
       </div>
-      <div class="calendar" id="calendar"></div>
+      <div class="tabs" id="tabs"></div>
     </div>
-  </div>
 
-  <!-- Booking Modal -->
-  <div class="modal-overlay" id="bookingModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 id="modalTitle">New Booking</h2>
-      </div>
-      <div class="modal-body">
-        <form id="bookingForm">
-          <input type="hidden" id="bookingId">
-          <input type="hidden" id="bookingDate">
+    <!-- Content -->
+    <div class="content" id="content"></div>
 
-          <div class="form-group">
-            <label for="courtSelect">Court</label>
-            <select id="courtSelect" required>
-              <option value="padel">Padel Court</option>
-              <option value="tennis">Tennis Court</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="bookedBy">Your Name</label>
-            <input type="text" id="bookedBy" required placeholder="Who's booking?">
-          </div>
-
-          <div class="time-row">
-            <div class="form-group">
-              <label for="startTime">Start Time</label>
-              <select id="startTime" required></select>
-            </div>
-            <div class="form-group">
-              <label for="endTime">End Time</label>
-              <select id="endTime" required></select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="notes">Notes (optional)</label>
-            <textarea id="notes" rows="2" placeholder="Any details..."></textarea>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteBooking()" style="display: none; margin-right: auto;">Delete</button>
-        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="saveBooking()">Save</button>
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">Manage Feeds</span>
+          <button class="modal-close" id="closeSettings">&times;</button>
+        </div>
+        <div id="settingsBody"></div>
       </div>
     </div>
-  </div>
 
-  <!-- Toast -->
-  <div class="toast" id="toast"></div>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+  </div>
 
   <script>
-    const API_URL = '/api/bookings';
-    let currentWeekStart = getMonday(new Date());
-    let currentMonth = new Date();
-    let currentView = 'week'; // 'week' or 'month'
-    let currentCourt = 'padel'; // 'padel' or 'tennis'
-    let bookings = [];
+    // State
+    let categories = [];
+    let fullCategories = []; // with feed details
+    let currentCategory = 'all';
+    let articles = [];
+    let isLoading = false;
 
-    // Password functions
-    async function checkPassword() {
-      const password = document.getElementById('passwordInput').value;
-      const errorEl = document.getElementById('loginError');
+    // DOM
+    const tabsEl = document.getElementById('tabs');
+    const contentEl = document.getElementById('content');
+    const settingsModal = document.getElementById('settingsModal');
+    const settingsBody = document.getElementById('settingsBody');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const closeSettingsBtn = document.getElementById('closeSettings');
 
+    // Init
+    async function init() {
+      await loadCategories();
+      renderTabs();
+      await loadFeed();
+    }
+
+    // Load categories
+    async function loadCategories() {
       try {
-        const response = await fetch('/api/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password })
+        const res = await fetch('/api/categories');
+        categories = await res.json();
+      } catch (err) {
+        console.error('Failed to load categories:', err);
+      }
+    }
+
+    // Render tabs
+    function renderTabs() {
+      const allTab = `<button class="tab ${currentCategory === 'all' ? 'active' : ''}" data-cat="all">
+        <span class="tab-icon">🎙️</span> All
+      </button>`;
+
+      const catTabs = categories.map(cat =>
+        `<button class="tab ${currentCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">
+          <span class="tab-icon">${cat.icon}</span> ${cat.name}
+        </button>`
+      ).join('');
+
+      tabsEl.innerHTML = allTab + catTabs;
+
+      tabsEl.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          currentCategory = tab.dataset.cat;
+          renderTabs();
+          loadFeed();
         });
-
-        if (response.ok) {
-          localStorage.setItem('bunny_auth', password);
-          showMainApp();
-          errorEl.style.display = 'none';
-        } else {
-          errorEl.style.display = 'block';
-        }
-      } catch (error) {
-        errorEl.style.display = 'block';
-      }
+      });
     }
 
-    async function verifyStoredPassword() {
-      const stored = localStorage.getItem('bunny_auth');
-      if (!stored) return false;
+    // Load feed
+    async function loadFeed() {
+      isLoading = true;
+      renderLoading();
 
       try {
-        const response = await fetch('/api/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: stored })
+        const url = currentCategory === 'all'
+          ? '/api/feed'
+          : `/api/feed?category=${encodeURIComponent(currentCategory)}`;
+        const res = await fetch(url);
+        articles = await res.json();
+      } catch (err) {
+        console.error('Failed to load feed:', err);
+        articles = [];
+      }
+
+      isLoading = false;
+      renderFeed();
+    }
+
+    // Render loading state
+    function renderLoading() {
+      contentEl.innerHTML = Array(5).fill(0).map(() => `
+        <div class="skeleton">
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line long"></div>
+          <div class="skeleton-line medium"></div>
+        </div>
+      `).join('');
+    }
+
+    // Format relative time
+    function timeAgo(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diff = now - date;
+      const mins = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+
+      if (mins < 1) return 'just now';
+      if (mins < 60) return `${mins}m ago`;
+      if (hours < 24) return `${hours}h ago`;
+      if (days < 7) return `${days}d ago`;
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    // Get date group label
+    function getDateGroup(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const articleDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+      if (articleDate >= today) return 'Today';
+      if (articleDate >= yesterday) return 'Yesterday';
+      if (now - articleDate < 7 * 86400000) return 'This Week';
+      return 'Earlier';
+    }
+
+    // Render feed
+    function renderFeed() {
+      if (articles.length === 0) {
+        contentEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🎙️</div>
+            <h2>No stories yet</h2>
+            <p>We're fetching your feeds. If this persists, check your feed sources in settings.</p>
+          </div>`;
+        return;
+      }
+
+      let html = '';
+      let lastGroup = '';
+
+      articles.forEach(article => {
+        const group = getDateGroup(article.pubDate);
+        if (group !== lastGroup) {
+          html += `<div class="date-header">${group}</div>`;
+          lastGroup = group;
+        }
+
+        const cat = categories.find(c => c.id === article.categoryId);
+        const catId = escapeAttr(article.categoryId);
+        const imageHtml = article.image
+          ? `<img class="card-image" src="${escapeAttr(article.image)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+          : '';
+
+        html += `
+          <div class="article-card" data-category="${catId}" data-link="${escapeAttr(article.link)}">
+            <div class="card-meta">
+              <span class="category-badge ${catId}">${cat ? cat.icon : ''} ${cat ? escapeHtml(cat.name) : ''}</span>
+              <span class="source-name">${escapeHtml(article.source)}</span>
+              <span class="card-time">${timeAgo(article.pubDate)}</span>
+            </div>
+            <div class="card-title">${escapeHtml(article.title)}</div>
+            ${article.snippet ? `<div class="card-snippet">${escapeHtml(article.snippet)}</div>` : ''}
+            ${imageHtml}
+          </div>`;
+      });
+
+      contentEl.innerHTML = html;
+
+      // Add click handlers
+      contentEl.querySelectorAll('.article-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const link = card.getAttribute('data-link');
+          if (link) window.open(link, '_blank', 'noopener');
         });
-        return response.ok;
-      } catch {
-        return false;
-      }
+      });
     }
 
-    function showMainApp() {
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('mainApp').classList.remove('hidden');
-      initializeApp();
-    }
-
-    function initializeApp() {
-      populateTimeSelects();
-      loadData();
-
-      // Load saved name
-      const savedName = localStorage.getItem('padel_user_name');
-      if (savedName) {
-        document.getElementById('bookedBy').value = savedName;
-      }
-
-      // Load saved view preference
-      const savedView = localStorage.getItem('padel_view');
-      if (savedView) {
-        setView(savedView);
-      }
-
-      // Load saved court preference
-      const savedCourt = localStorage.getItem('bunny_court');
-      if (savedCourt) {
-        setCourt(savedCourt);
-      }
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', async () => {
-      const isValid = await verifyStoredPassword();
-      if (isValid) {
-        showMainApp();
-      }
-    });
-
-    function setCourt(court) {
-      currentCourt = court;
-      localStorage.setItem('bunny_court', court);
-
-      document.getElementById('padelTab').classList.toggle('active', court === 'padel');
-      document.getElementById('tennisTab').classList.toggle('active', court === 'tennis');
-
-      // Toggle theme
-      document.body.classList.toggle('tennis-theme', court === 'tennis');
-
-      loadData();
-    }
-
-    function getMonday(date) {
-      const d = new Date(date);
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      return new Date(d.setDate(diff));
-    }
-
-    function formatDate(date) {
-      return date.toISOString().split('T')[0];
-    }
-
-    function setView(view) {
-      currentView = view;
-      localStorage.setItem('padel_view', view);
-
-      document.getElementById('weekViewBtn').classList.toggle('active', view === 'week');
-      document.getElementById('monthViewBtn').classList.toggle('active', view === 'month');
-
-      loadData();
-    }
-
-    function previousPeriod() {
-      if (currentView === 'week') {
-        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-      } else {
-        currentMonth.setMonth(currentMonth.getMonth() - 1);
-      }
-      loadData();
-    }
-
-    function nextPeriod() {
-      if (currentView === 'week') {
-        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-      } else {
-        currentMonth.setMonth(currentMonth.getMonth() + 1);
-      }
-      loadData();
-    }
-
-    async function loadData() {
-      if (currentView === 'week') {
-        await loadWeek();
-      } else {
-        await loadMonth();
-      }
-    }
-
-    function populateTimeSelects() {
-      const startSelect = document.getElementById('startTime');
-      const endSelect = document.getElementById('endTime');
-
-      for (let h = 7; h <= 22; h++) {
-        for (let m = 0; m < 60; m += 30) {
-          const time = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-          const label = formatTimeLabel(time);
-
-          startSelect.innerHTML += `<option value="${time}">${label}</option>`;
-          endSelect.innerHTML += `<option value="${time}">${label}</option>`;
-        }
-      }
-      // Add end time for 23:00
-      endSelect.innerHTML += `<option value="23:00">11:00 PM</option>`;
-
-      // Set defaults
-      startSelect.value = '09:00';
-      endSelect.value = '10:30';
-    }
-
-    function formatTimeLabel(time) {
-      const [h, m] = time.split(':');
-      const hour = parseInt(h);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const hour12 = hour % 12 || 12;
-      return `${hour12}:${m} ${ampm}`;
-    }
-
-    async function loadWeek() {
-      const weekEnd = new Date(currentWeekStart);
-      weekEnd.setDate(weekEnd.getDate() + 6);
-
-      // Update header
-      const options = { month: 'short', day: 'numeric' };
-      document.getElementById('currentWeek').textContent =
-        `${currentWeekStart.toLocaleDateString('en-US', options)} - ${weekEnd.toLocaleDateString('en-US', options)}`;
-
-      try {
-        const response = await fetch(
-          `${API_URL}/range?start=${formatDate(currentWeekStart)}&end=${formatDate(weekEnd)}`
-        );
-        bookings = await response.json();
-        renderCalendar();
-      } catch (error) {
-        showToast('Failed to load bookings', 'error');
-      }
-    }
-
-    function renderCalendar() {
-      const calendar = document.getElementById('calendar');
-      calendar.innerHTML = '';
-      calendar.className = 'calendar';
-
-      const today = formatDate(new Date());
-      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(currentWeekStart);
-        date.setDate(date.getDate() + i);
-        const dateStr = formatDate(date);
-        const isToday = dateStr === today;
-
-        const dayBookings = bookings
-          .filter(b => b.date === dateStr && b.court === currentCourt)
-          .sort((a, b) => a.startTime.localeCompare(b.startTime));
-
-        const column = document.createElement('div');
-        column.className = 'day-column';
-        column.innerHTML = `
-          <div class="day-header ${isToday ? 'today' : ''}">
-            <div class="day-name">${dayNames[i]}</div>
-            <div class="day-number">${date.getDate()}</div>
-          </div>
-          <div class="day-bookings">
-            ${dayBookings.map(b => `
-              <div class="booking" onclick="editBooking('${b.id}')">
-                <div class="time">${formatTimeLabel(b.startTime)} - ${formatTimeLabel(b.endTime)}</div>
-                <div class="name">${escapeHtml(b.bookedBy)}</div>
-                ${b.notes ? `<div class="notes" style="font-size:11px;color:#666;margin-top:2px;">${escapeHtml(b.notes)}</div>` : ''}
-              </div>
-            `).join('')}
-            <button class="add-booking-btn" onclick="openModal('${dateStr}')">+ Add Booking</button>
-          </div>
-        `;
-        calendar.appendChild(column);
-      }
-    }
-
-    function escapeHtml(text) {
+    // Escape HTML
+    function escapeHtml(str) {
+      if (!str) return '';
       const div = document.createElement('div');
-      div.textContent = text;
+      div.textContent = str;
       return div.innerHTML;
     }
 
-    async function loadMonth() {
-      const year = currentMonth.getFullYear();
-      const month = currentMonth.getMonth();
+    // Escape for HTML attributes
+    function escapeAttr(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
 
-      // Get first and last day to display (including padding days)
-      const firstOfMonth = new Date(year, month, 1);
-      const lastOfMonth = new Date(year, month + 1, 0);
-
-      // Start from Monday of the week containing the 1st
-      const startDate = getMonday(firstOfMonth);
-      // End on Sunday of the week containing the last day
-      const endDate = new Date(lastOfMonth);
-      const endDay = endDate.getDay();
-      if (endDay !== 0) {
-        endDate.setDate(endDate.getDate() + (7 - endDay));
-      }
-
-      // Update header
-      const options = { month: 'long', year: 'numeric' };
-      document.getElementById('currentWeek').textContent =
-        currentMonth.toLocaleDateString('en-US', options);
-
+    // Refresh feeds
+    async function refreshFeeds() {
+      refreshBtn.classList.add('spinning');
+      showToast('Refreshing feeds...');
       try {
-        const response = await fetch(
-          `${API_URL}/range?start=${formatDate(startDate)}&end=${formatDate(endDate)}`
-        );
-        bookings = await response.json();
-        renderMonthCalendar(startDate, endDate, month);
-      } catch (error) {
-        showToast('Failed to load bookings', 'error');
+        await fetch('/api/refresh', { method: 'POST' });
+        await loadFeed();
+        showToast('Feeds refreshed!');
+      } catch {
+        showToast('Failed to refresh');
+      } finally {
+        refreshBtn.classList.remove('spinning');
       }
     }
 
-    function renderMonthCalendar(startDate, endDate, currentMonthIndex) {
-      const calendar = document.getElementById('calendar');
-      calendar.innerHTML = '';
-      calendar.className = 'calendar month-view';
+    // Settings
+    async function openSettings() {
+      // Load full category data with feeds
+      try {
+        const res = await fetch('/api/categories/full');
+        fullCategories = await res.json();
+      } catch {
+        fullCategories = categories;
+      }
+      renderSettings();
+      settingsModal.classList.add('open');
+    }
 
-      const today = formatDate(new Date());
-      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    function closeSettingsModal() {
+      settingsModal.classList.remove('open');
+      loadCategories().then(() => {
+        renderTabs();
+        loadFeed();
+      });
+    }
 
-      // Add day headers
-      dayNames.forEach(name => {
-        const header = document.createElement('div');
-        header.className = 'month-day-header';
-        header.textContent = name;
-        calendar.appendChild(header);
+    function renderSettings() {
+      let html = '';
+
+      fullCategories.forEach(cat => {
+        const feeds = cat.feeds || [];
+        html += `
+          <div class="settings-category">
+            <div class="settings-category-header">
+              <span class="settings-category-icon">${cat.icon}</span>
+              <span class="settings-category-name">${escapeHtml(cat.name)}</span>
+              <button class="settings-category-delete" data-delete-cat="${escapeAttr(cat.id)}">Remove</button>
+            </div>
+            <div class="feed-list">
+              ${feeds.map(f => `
+                <div class="feed-item">
+                  <div class="feed-item-info">
+                    <div class="feed-item-name">${escapeHtml(f.name)}</div>
+                    <div class="feed-item-url">${escapeHtml(f.url)}</div>
+                  </div>
+                  <button class="feed-item-remove" data-remove-feed="${escapeAttr(cat.id)}" data-feed-url="${escapeAttr(f.url)}" title="Remove feed">&times;</button>
+                </div>
+              `).join('')}
+              ${feeds.length === 0 ? '<div style="padding:8px 0;color:var(--text-muted);font-size:13px">No feeds yet. Add one below.</div>' : ''}
+            </div>
+            <div class="add-feed-row">
+              <input type="text" placeholder="Feed name" id="newFeedName-${escapeAttr(cat.id)}">
+              <input type="text" placeholder="RSS feed URL" id="newFeedUrl-${escapeAttr(cat.id)}">
+              <button class="btn-add" data-add-feed="${escapeAttr(cat.id)}">Add</button>
+            </div>
+          </div>`;
       });
 
-      // Add days
-      const date = new Date(startDate);
-      while (date <= endDate) {
-        const dateStr = formatDate(date);
-        const isToday = dateStr === today;
-        const isOtherMonth = date.getMonth() !== currentMonthIndex;
+      html += `
+        <div class="add-category-section">
+          <h3>Add New Category</h3>
+          <div class="add-category-row">
+            <input type="text" placeholder="Category name" id="newCategoryName">
+            <input type="text" placeholder="Emoji icon" id="newCategoryIcon" style="max-width:80px">
+            <button class="btn-add" id="addCategoryBtn">Add</button>
+          </div>
+        </div>`;
 
-        const dayBookings = bookings
-          .filter(b => b.date === dateStr && b.court === currentCourt)
-          .sort((a, b) => a.startTime.localeCompare(b.startTime));
+      settingsBody.innerHTML = html;
 
-        const dayEl = document.createElement('div');
-        dayEl.className = `month-day ${isToday ? 'today' : ''} ${isOtherMonth ? 'other-month' : ''}`;
+      // Wire up event handlers
+      settingsBody.querySelectorAll('[data-delete-cat]').forEach(btn => {
+        btn.addEventListener('click', () => deleteCategory(btn.dataset.deleteCat));
+      });
 
-        const maxVisible = 2;
-        const visibleBookings = dayBookings.slice(0, maxVisible);
-        const hiddenCount = dayBookings.length - maxVisible;
+      settingsBody.querySelectorAll('[data-remove-feed]').forEach(btn => {
+        btn.addEventListener('click', () => removeFeed(btn.dataset.removeFeed, btn.dataset.feedUrl));
+      });
 
-        dayEl.innerHTML = `
-          <div class="month-day-number">${date.getDate()}</div>
-          ${visibleBookings.map(b => `
-            <div class="booking" onclick="editBooking('${b.id}')">
-              <div class="time">${formatTimeLabel(b.startTime)}</div>
-              <div class="name">${escapeHtml(b.bookedBy)}</div>
-            </div>
-          `).join('')}
-          ${hiddenCount > 0 ? `<div class="more-bookings" onclick="openDayDetail('${dateStr}')">+${hiddenCount} more</div>` : ''}
-          ${dayBookings.map(() => '<span class="booking-dot"></span>').join('')}
-          <button class="add-booking-btn" onclick="openModal('${dateStr}')">+</button>
-        `;
+      settingsBody.querySelectorAll('[data-add-feed]').forEach(btn => {
+        btn.addEventListener('click', () => addFeed(btn.dataset.addFeed));
+      });
 
-        calendar.appendChild(dayEl);
-        date.setDate(date.getDate() + 1);
-      }
+      const addCatBtn = document.getElementById('addCategoryBtn');
+      if (addCatBtn) addCatBtn.addEventListener('click', addCategory);
     }
 
-    function openDayDetail(dateStr) {
-      // Switch to week view showing this date
-      const date = new Date(dateStr);
-      currentWeekStart = getMonday(date);
-      setView('week');
-    }
+    async function addFeed(categoryId) {
+      const nameInput = document.getElementById(`newFeedName-${categoryId}`);
+      const urlInput = document.getElementById(`newFeedUrl-${categoryId}`);
+      const name = nameInput.value.trim();
+      const url = urlInput.value.trim();
 
-    function openModal(date) {
-      document.getElementById('modalTitle').textContent = 'New Booking';
-      document.getElementById('bookingId').value = '';
-      document.getElementById('bookingDate').value = date;
-      document.getElementById('notes').value = '';
-      document.getElementById('deleteBtn').style.display = 'none';
-      document.getElementById('courtSelect').value = currentCourt;
-
-      // Reset times
-      document.getElementById('startTime').value = '09:00';
-      document.getElementById('endTime').value = '10:30';
-
-      document.getElementById('bookingModal').classList.add('active');
-    }
-
-    function editBooking(id) {
-      const booking = bookings.find(b => b.id === id);
-      if (!booking) return;
-
-      document.getElementById('modalTitle').textContent = 'Edit Booking';
-      document.getElementById('bookingId').value = booking.id;
-      document.getElementById('bookingDate').value = booking.date;
-      document.getElementById('bookedBy').value = booking.bookedBy;
-      document.getElementById('startTime').value = booking.startTime;
-      document.getElementById('endTime').value = booking.endTime;
-      document.getElementById('notes').value = booking.notes || '';
-      document.getElementById('courtSelect').value = booking.court || 'padel';
-      document.getElementById('deleteBtn').style.display = 'block';
-
-      document.getElementById('bookingModal').classList.add('active');
-    }
-
-    function closeModal() {
-      document.getElementById('bookingModal').classList.remove('active');
-    }
-
-    async function saveBooking() {
-      const id = document.getElementById('bookingId').value;
-      const date = document.getElementById('bookingDate').value;
-      const bookedBy = document.getElementById('bookedBy').value.trim();
-      const startTime = document.getElementById('startTime').value;
-      const endTime = document.getElementById('endTime').value;
-      const notes = document.getElementById('notes').value.trim();
-      const court = document.getElementById('courtSelect').value;
-
-      if (!bookedBy) {
-        showToast('Please enter your name', 'error');
+      if (!name || !url) {
+        showToast('Please enter both name and URL');
         return;
       }
-
-      if (startTime >= endTime) {
-        showToast('End time must be after start time', 'error');
-        return;
-      }
-
-      // Save name for next time
-      localStorage.setItem('padel_user_name', bookedBy);
 
       try {
-        // If editing, delete old booking first
-        if (id) {
-          await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        }
-
-        const response = await fetch(API_URL, {
+        const res = await fetch(`/api/categories/${encodeURIComponent(categoryId)}/feeds`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date, startTime, endTime, bookedBy, notes, court })
+          body: JSON.stringify({ name, url })
         });
 
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to save');
+        if (res.ok) {
+          nameInput.value = '';
+          urlInput.value = '';
+          showToast('Feed added!');
+          // Reload settings
+          const fullRes = await fetch('/api/categories/full');
+          fullCategories = await fullRes.json();
+          renderSettings();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Failed to add feed');
         }
-
-        closeModal();
-        loadData();
-        showToast('Booking saved!', 'success');
-      } catch (error) {
-        showToast(error.message, 'error');
+      } catch {
+        showToast('Failed to add feed');
       }
     }
 
-    async function deleteBooking() {
-      const id = document.getElementById('bookingId').value;
-      if (!id) return;
+    async function removeFeed(categoryId, feedUrl) {
+      try {
+        const res = await fetch(`/api/categories/${encodeURIComponent(categoryId)}/feeds`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: feedUrl })
+        });
 
-      if (!confirm('Delete this booking?')) return;
+        if (res.ok) {
+          showToast('Feed removed');
+          const fullRes = await fetch('/api/categories/full');
+          fullCategories = await fullRes.json();
+          renderSettings();
+        }
+      } catch {
+        showToast('Failed to remove feed');
+      }
+    }
+
+    async function addCategory() {
+      const nameInput = document.getElementById('newCategoryName');
+      const iconInput = document.getElementById('newCategoryIcon');
+      const name = nameInput.value.trim();
+      const icon = iconInput.value.trim() || '📌';
+
+      if (!name) {
+        showToast('Please enter a category name');
+        return;
+      }
 
       try {
-        await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        closeModal();
-        loadData();
-        showToast('Booking deleted', 'success');
-      } catch (error) {
-        showToast('Failed to delete booking', 'error');
+        const res = await fetch('/api/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, icon })
+        });
+
+        if (res.ok) {
+          nameInput.value = '';
+          iconInput.value = '';
+          showToast('Category added!');
+          await loadCategories();
+          const fullRes = await fetch('/api/categories/full');
+          fullCategories = await fullRes.json();
+          renderSettings();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Failed to add category');
+        }
+      } catch {
+        showToast('Failed to add category');
       }
     }
 
-    function showToast(message, type = '') {
+    async function deleteCategory(categoryId) {
+      if (!confirm('Remove this category and all its feeds?')) return;
+
+      try {
+        await fetch(`/api/categories/${encodeURIComponent(categoryId)}`, { method: 'DELETE' });
+        showToast('Category removed');
+        await loadCategories();
+        const fullRes = await fetch('/api/categories/full');
+        fullCategories = await fullRes.json();
+        renderSettings();
+      } catch {
+        showToast('Failed to remove category');
+      }
+    }
+
+    // Toast
+    function showToast(msg) {
       const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.className = `toast ${type} show`;
-
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
-    // Close modal on overlay click
-    document.getElementById('bookingModal').addEventListener('click', (e) => {
-      if (e.target.id === 'bookingModal') {
-        closeModal();
-      }
+    // Event listeners
+    refreshBtn.addEventListener('click', refreshFeeds);
+    settingsBtn.addEventListener('click', openSettings);
+    closeSettingsBtn.addEventListener('click', closeSettingsModal);
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) closeSettingsModal();
     });
 
-    // Close modal on Escape key
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeModal();
-      }
+      if (e.key === 'Escape') closeSettingsModal();
     });
+
+    // Start
+    init();
   </script>
 </body>
 </html>

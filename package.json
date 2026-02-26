@@ -1,7 +1,7 @@
 {
-  "name": "padel-court-booking",
+  "name": "personal-podcast",
   "version": "1.0.0",
-  "description": "Simple padel court booking app for friends and family",
+  "description": "Personal podcast feed - fiction trends, Clemson football, tech, and La Liga all in one place",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "rss-parser": "^3.13.0"
   }
 }
