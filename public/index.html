@@ -576,6 +576,352 @@
       padding-top: 4px;
     }
 
+    /* Now Playing highlight */
+    .article-card.now-playing {
+      border-color: var(--accent);
+      background: var(--bg-hover);
+    }
+
+    .article-card.now-playing::after {
+      content: '🔊';
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      font-size: 14px;
+      animation: speakerPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes speakerPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Play Button in header */
+    .play-btn {
+      background: var(--accent);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .play-btn:hover {
+      opacity: 0.85;
+    }
+
+    /* Mini Player */
+    .mini-player {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 150;
+      background: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+
+    .mini-player.visible {
+      transform: translateY(0);
+    }
+
+    .mini-player-progress {
+      height: 3px;
+      background: var(--border);
+      position: relative;
+    }
+
+    .mini-player-progress-bar {
+      height: 100%;
+      background: var(--accent);
+      transition: width 0.3s;
+      width: 0%;
+    }
+
+    .mini-player-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .mini-player-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .mini-player-category {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .mini-player-title {
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mini-player-source {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .mini-player-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .player-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .player-btn:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+
+    .player-btn.main-control {
+      width: 44px;
+      height: 44px;
+      background: var(--accent);
+      color: white;
+    }
+
+    .player-btn.main-control:hover {
+      opacity: 0.85;
+      background: var(--accent);
+      color: white;
+    }
+
+    .player-btn-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-left: 4px;
+    }
+
+    .player-btn-close:hover {
+      color: var(--text-primary);
+    }
+
+    /* When player is visible, add bottom padding */
+    .app.player-active {
+      padding-bottom: 140px;
+    }
+
+    @media (max-width: 600px) {
+      .mini-player-content { padding: 10px 16px; gap: 10px; }
+      .mini-player-title { font-size: 13px; }
+      .player-btn { width: 34px; height: 34px; }
+      .player-btn.main-control { width: 40px; height: 40px; }
+    }
+
+    /* Episodes View */
+    .episodes-view {
+      padding: 4px 0;
+    }
+
+    .subscribe-banner {
+      background: linear-gradient(135deg, var(--accent), var(--tech));
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .subscribe-banner h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .subscribe-banner p {
+      font-size: 13px;
+      opacity: 0.9;
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .rss-url-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .rss-url-input {
+      flex: 1;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-family: monospace;
+      outline: none;
+      min-width: 0;
+    }
+
+    .btn-copy {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-copy:hover {
+      background: rgba(0,0,0,0.5);
+    }
+
+    .subscribe-links {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 12px;
+    }
+
+    .subscribe-links span {
+      opacity: 0.7;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      border: none;
+      color: white;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: opacity 0.2s;
+    }
+
+    .generate-btn:hover {
+      opacity: 0.85;
+    }
+
+    .generate-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .generate-btn .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .episode-card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .episode-play-btn {
+      background: var(--accent);
+      border: none;
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: opacity 0.2s;
+    }
+
+    .episode-play-btn:hover {
+      opacity: 0.85;
+    }
+
+    .episode-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .episode-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .episode-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 12px;
+    }
+
+    .episode-delete {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+      flex-shrink: 0;
+    }
+
+    .episode-delete:hover {
+      color: #EF4444;
+    }
+
     /* Toast */
     .toast {
       position: fixed;
@@ -625,6 +971,9 @@
           <span class="logo-text">My Podcast</span>
         </div>
         <div class="header-actions">
+          <button class="play-btn" id="playBtn" title="Play podcast">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="4,2 14,8 4,14"/></svg>
+          </button>
           <button class="icon-btn" id="refreshBtn" title="Refresh feeds">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5v4h4"/><path d="M1.84 10a6.5 6.5 0 1 0 .66-4.5L1.5 5.5"/></svg>
           </button>
@@ -654,13 +1003,42 @@
     <div class="toast" id="toast"></div>
   </div>
 
+  <!-- Mini Player -->
+  <div class="mini-player" id="miniPlayer">
+    <div class="mini-player-progress">
+      <div class="mini-player-progress-bar" id="playerProgress"></div>
+    </div>
+    <div class="mini-player-content">
+      <div class="mini-player-info">
+        <div class="mini-player-category" id="playerCategory"></div>
+        <div class="mini-player-title" id="playerTitle">Ready to play</div>
+        <div class="mini-player-source" id="playerSource"></div>
+      </div>
+      <div class="mini-player-controls">
+        <button class="player-btn" id="prevBtn" title="Previous">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="3" height="12"/><polygon points="15,2 6,8 15,14"/></svg>
+        </button>
+        <button class="player-btn main-control" id="pauseBtn" title="Play/Pause">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" id="pauseIcon"><polygon points="4,2 14,8 4,14"/></svg>
+        </button>
+        <button class="player-btn" id="nextBtn" title="Next">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="12" y="2" width="3" height="12"/><polygon points="1,2 10,8 1,14"/></svg>
+        </button>
+        <button class="player-btn-close" id="closePlayer" title="Stop">&times;</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // State
     let categories = [];
     let fullCategories = []; // with feed details
     let currentCategory = 'all';
+    let currentView = 'feed'; // 'feed' or 'episodes'
     let articles = [];
+    let episodes = [];
     let isLoading = false;
+    let isGenerating = false;
 
     // DOM
     const tabsEl = document.getElementById('tabs');
@@ -690,23 +1068,34 @@
 
     // Render tabs
     function renderTabs() {
-      const allTab = `<button class="tab ${currentCategory === 'all' ? 'active' : ''}" data-cat="all">
+      const episodesTab = `<button class="tab ${currentView === 'episodes' ? 'active' : ''}" data-view="episodes">
+        <span class="tab-icon">🎧</span> Episodes
+      </button>`;
+
+      const allTab = `<button class="tab ${currentView === 'feed' && currentCategory === 'all' ? 'active' : ''}" data-cat="all">
         <span class="tab-icon">🎙️</span> All
       </button>`;
 
       const catTabs = categories.map(cat =>
-        `<button class="tab ${currentCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">
+        `<button class="tab ${currentView === 'feed' && currentCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">
           <span class="tab-icon">${cat.icon}</span> ${cat.name}
         </button>`
       ).join('');
 
-      tabsEl.innerHTML = allTab + catTabs;
+      tabsEl.innerHTML = episodesTab + allTab + catTabs;
 
       tabsEl.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
-          currentCategory = tab.dataset.cat;
-          renderTabs();
-          loadFeed();
+          if (tab.dataset.view === 'episodes') {
+            currentView = 'episodes';
+            renderTabs();
+            loadEpisodes();
+          } else {
+            currentView = 'feed';
+            currentCategory = tab.dataset.cat;
+            renderTabs();
+            loadFeed();
+          }
         });
       });
     }
@@ -1060,6 +1449,391 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeSettingsModal();
     });
+
+    // ========== EPISODES VIEW ==========
+
+    async function loadEpisodes() {
+      renderLoading();
+      try {
+        const res = await fetch('/api/episodes');
+        episodes = await res.json();
+      } catch {
+        episodes = [];
+      }
+      renderEpisodes();
+    }
+
+    function formatEpDuration(secs) {
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function renderEpisodes() {
+      const rssUrl = `${location.origin}/podcast.xml`;
+
+      let html = `<div class="episodes-view">`;
+
+      // Subscribe banner
+      html += `
+        <div class="subscribe-banner">
+          <h3>Subscribe to Your Podcast</h3>
+          <p>Copy this RSS feed URL and add it to Apple Podcasts, Spotify, Overcast, or any podcast app.</p>
+          <div class="rss-url-row">
+            <input type="text" class="rss-url-input" value="${escapeAttr(rssUrl)}" readonly id="rssUrlInput">
+            <button class="btn-copy" id="copyRssBtn">Copy</button>
+          </div>
+          <div class="subscribe-links">
+            <span>Works with: Apple Podcasts, Spotify, Overcast, Pocket Casts, and more</span>
+          </div>
+        </div>`;
+
+      // Generate button
+      html += `
+        <button class="generate-btn" id="generateBtn" ${isGenerating ? 'disabled' : ''}>
+          ${isGenerating ? '<span class="spinner"></span>Generating episode...' : 'Generate Today\'s Episode'}
+        </button>`;
+
+      // Episode list
+      if (episodes.length === 0) {
+        html += `
+          <div class="empty-state" style="padding:40px 20px">
+            <div class="empty-icon">🎧</div>
+            <h2>No episodes yet</h2>
+            <p>Hit the button above to generate your first daily briefing episode.</p>
+          </div>`;
+      } else {
+        episodes.forEach(ep => {
+          html += `
+            <div class="episode-card">
+              <button class="episode-play-btn" data-play-episode="${escapeAttr(ep.filename)}">
+                <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><polygon points="4,2 14,8 4,14"/></svg>
+              </button>
+              <div class="episode-info">
+                <div class="episode-title">${escapeHtml(ep.title)}</div>
+                <div class="episode-meta">
+                  <span>${formatEpDuration(ep.duration)}</span>
+                  <span>${ep.articleCount} stories</span>
+                  <span>${timeAgo(ep.pubDate)}</span>
+                </div>
+              </div>
+              <button class="episode-delete" data-delete-episode="${escapeAttr(ep.id)}" title="Delete">&times;</button>
+            </div>`;
+        });
+      }
+
+      html += `</div>`;
+      contentEl.innerHTML = html;
+
+      // Wire up handlers
+      const copyBtn = document.getElementById('copyRssBtn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          const input = document.getElementById('rssUrlInput');
+          input.select();
+          navigator.clipboard.writeText(input.value).then(() => {
+            showToast('RSS URL copied!');
+          }).catch(() => {
+            document.execCommand('copy');
+            showToast('RSS URL copied!');
+          });
+        });
+      }
+
+      const genBtn = document.getElementById('generateBtn');
+      if (genBtn) genBtn.addEventListener('click', generateEpisode);
+
+      contentEl.querySelectorAll('[data-play-episode]').forEach(btn => {
+        btn.addEventListener('click', () => playEpisodeAudio(btn.dataset.playEpisode));
+      });
+
+      contentEl.querySelectorAll('[data-delete-episode]').forEach(btn => {
+        btn.addEventListener('click', () => deleteEpisode(btn.dataset.deleteEpisode));
+      });
+    }
+
+    async function generateEpisode() {
+      isGenerating = true;
+      renderEpisodes();
+      showToast('Generating your episode... this may take a minute');
+
+      try {
+        const res = await fetch('/api/episodes/generate', { method: 'POST' });
+        if (res.ok) {
+          const ep = await res.json();
+          showToast(`Episode ready! ${ep.articleCount} stories.`);
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Failed to generate');
+        }
+      } catch {
+        showToast('Failed to generate episode');
+      }
+
+      isGenerating = false;
+      await loadEpisodes();
+    }
+
+    function playEpisodeAudio(filename) {
+      // Stop any browser TTS
+      synth.cancel();
+      stopPlayer();
+
+      // Use a real <audio> element for the MP3
+      let audioEl = document.getElementById('episodeAudio');
+      if (!audioEl) {
+        audioEl = document.createElement('audio');
+        audioEl.id = 'episodeAudio';
+        document.body.appendChild(audioEl);
+      }
+
+      audioEl.src = `/episodes/${encodeURIComponent(filename)}`;
+      audioEl.play();
+
+      // Show mini player for the episode
+      const ep = episodes.find(e => e.filename === filename);
+      if (ep) {
+        playerTitle.textContent = ep.title;
+        playerCategory.textContent = '🎧 Episode';
+        playerCategory.style.color = '';
+        playerSource.textContent = `${ep.articleCount} stories`;
+      }
+
+      showPlayer();
+      playerState.playing = true;
+      setPauseIcon(true);
+
+      // Override pause button for audio mode
+      pauseBtn.onclick = () => {
+        if (audioEl.paused) {
+          audioEl.play();
+          setPauseIcon(true);
+        } else {
+          audioEl.pause();
+          setPauseIcon(false);
+        }
+      };
+
+      audioEl.onended = () => {
+        setPauseIcon(false);
+        playerTitle.textContent = 'Finished!';
+      };
+
+      audioEl.ontimeupdate = () => {
+        if (audioEl.duration) {
+          playerProgress.style.width = (audioEl.currentTime / audioEl.duration * 100) + '%';
+        }
+      };
+    }
+
+    async function deleteEpisode(id) {
+      if (!confirm('Delete this episode?')) return;
+      try {
+        await fetch(`/api/episodes/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        showToast('Episode deleted');
+        await loadEpisodes();
+      } catch {
+        showToast('Failed to delete');
+      }
+    }
+
+    // ========== PODCAST PLAYER ==========
+    const synth = window.speechSynthesis;
+    let playerState = {
+      playing: false,
+      currentIndex: -1,
+      utterance: null
+    };
+
+    const miniPlayer = document.getElementById('miniPlayer');
+    const playerTitle = document.getElementById('playerTitle');
+    const playerCategory = document.getElementById('playerCategory');
+    const playerSource = document.getElementById('playerSource');
+    const playerProgress = document.getElementById('playerProgress');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const pauseIcon = document.getElementById('pauseIcon');
+    const playBtn = document.getElementById('playBtn');
+
+    function getCategoryName(catId) {
+      const cat = categories.find(c => c.id === catId);
+      return cat ? cat.name : catId;
+    }
+
+    function buildScript(article) {
+      const catName = getCategoryName(article.categoryId);
+      let text = `${catName}. From ${article.source}. ${article.title}.`;
+      if (article.snippet) {
+        text += ` ${article.snippet}`;
+      }
+      return text;
+    }
+
+    function updatePlayerUI(article) {
+      const cat = categories.find(c => c.id === article.categoryId);
+      playerCategory.textContent = cat ? `${cat.icon} ${cat.name}` : '';
+      playerCategory.style.color = cat ? cat.color : '';
+      playerTitle.textContent = article.title;
+      playerSource.textContent = article.source;
+
+      // Progress
+      const pct = articles.length > 0 ? ((playerState.currentIndex + 1) / articles.length) * 100 : 0;
+      playerProgress.style.width = pct + '%';
+
+      // Highlight current card
+      document.querySelectorAll('.article-card.now-playing').forEach(el => el.classList.remove('now-playing'));
+      const cards = document.querySelectorAll('.article-card');
+      if (cards[playerState.currentIndex]) {
+        cards[playerState.currentIndex].classList.add('now-playing');
+        cards[playerState.currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function setPauseIcon(playing) {
+      if (playing) {
+        pauseIcon.innerHTML = '<rect x="3" y="2" width="4" height="12"/><rect x="9" y="2" width="4" height="12"/>';
+      } else {
+        pauseIcon.innerHTML = '<polygon points="4,2 14,8 4,14"/>';
+      }
+    }
+
+    function showPlayer() {
+      miniPlayer.classList.add('visible');
+      document.querySelector('.app').classList.add('player-active');
+    }
+
+    function hidePlayer() {
+      miniPlayer.classList.remove('visible');
+      document.querySelector('.app').classList.remove('player-active');
+    }
+
+    function speakArticle(index) {
+      synth.cancel();
+
+      if (index < 0 || index >= articles.length) {
+        // Finished all articles
+        playerState.playing = false;
+        playerState.currentIndex = -1;
+        setPauseIcon(false);
+        playerTitle.textContent = 'Finished!';
+        playerSource.textContent = '';
+        document.querySelectorAll('.article-card.now-playing').forEach(el => el.classList.remove('now-playing'));
+        return;
+      }
+
+      const article = articles[index];
+      playerState.currentIndex = index;
+      updatePlayerUI(article);
+
+      const text = buildScript(article);
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 1.0;
+      utter.pitch = 1.0;
+
+      // Try to pick a natural-sounding voice
+      const voices = synth.getVoices();
+      const preferred = voices.find(v => v.name.includes('Samantha') || v.name.includes('Google') || v.name.includes('Natural') || v.lang.startsWith('en'));
+      if (preferred) utter.voice = preferred;
+
+      utter.onend = () => {
+        if (playerState.playing) {
+          speakArticle(index + 1);
+        }
+      };
+
+      utter.onerror = (e) => {
+        if (e.error !== 'canceled' && playerState.playing) {
+          // Skip to next on error
+          speakArticle(index + 1);
+        }
+      };
+
+      playerState.utterance = utter;
+      playerState.playing = true;
+      setPauseIcon(true);
+      synth.speak(utter);
+    }
+
+    function startPodcast() {
+      if (articles.length === 0) {
+        showToast('No articles to play');
+        return;
+      }
+      showPlayer();
+      speakArticle(0);
+    }
+
+    function togglePause() {
+      if (!playerState.playing && playerState.currentIndex === -1) {
+        // Nothing playing yet, start from beginning
+        startPodcast();
+        return;
+      }
+
+      if (synth.paused) {
+        synth.resume();
+        playerState.playing = true;
+        setPauseIcon(true);
+      } else if (synth.speaking) {
+        synth.pause();
+        playerState.playing = false;
+        setPauseIcon(false);
+      } else {
+        // Speech ended, restart current
+        playerState.playing = true;
+        speakArticle(playerState.currentIndex >= 0 ? playerState.currentIndex : 0);
+      }
+    }
+
+    function nextArticle() {
+      if (playerState.currentIndex < articles.length - 1) {
+        speakArticle(playerState.currentIndex + 1);
+      }
+    }
+
+    function prevArticle() {
+      if (playerState.currentIndex > 0) {
+        speakArticle(playerState.currentIndex - 1);
+      }
+    }
+
+    function stopPlayer() {
+      synth.cancel();
+      playerState.playing = false;
+      playerState.currentIndex = -1;
+      setPauseIcon(false);
+      hidePlayer();
+      document.querySelectorAll('.article-card.now-playing').forEach(el => el.classList.remove('now-playing'));
+      // Also stop episode audio if playing
+      const audioEl = document.getElementById('episodeAudio');
+      if (audioEl) {
+        audioEl.pause();
+        audioEl.src = '';
+      }
+      // Reset pause button handler
+      pauseBtn.onclick = null;
+    }
+
+    // Workaround: Chrome pauses speech after ~15s. Keep it alive.
+    setInterval(() => {
+      if (synth.speaking && !synth.paused) {
+        synth.pause();
+        synth.resume();
+      }
+    }, 10000);
+
+    // Ensure voices are loaded
+    synth.getVoices();
+    speechSynthesis.onvoiceschanged = () => synth.getVoices();
+
+    // Player event listeners
+    playBtn.addEventListener('click', startPodcast);
+    pauseBtn.addEventListener('click', (e) => {
+      // If onclick is set (episode audio mode), that handler runs instead
+      if (!pauseBtn.onclick) togglePause();
+    });
+    document.getElementById('nextBtn').addEventListener('click', nextArticle);
+    document.getElementById('prevBtn').addEventListener('click', prevArticle);
+    document.getElementById('closePlayer').addEventListener('click', stopPlayer);
 
     // Start
     init();
